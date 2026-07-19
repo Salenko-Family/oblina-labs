@@ -1,0 +1,69 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  type: string;
+  status: string;
+  color: "pink" | "yellow" | "lime";
+}
+
+const { title, description, type, status, color } = Astro.props;
+---
+
+<article class={color}>
+  <p class="project-type">{type}</p>
+  <h3>{title}</h3>
+  <p class="project-description">{description}</p>
+  <p class="project-status">{status}</p>
+</article>
+<style>
+  article {
+    min-height: 360px;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    border: 2px solid var(--color-text);
+    border-radius: 20px;
+  }
+  .pink {
+    background: var(--color-pink);
+  }
+
+  .yellow {
+    background: var(--color-yellow);
+  }
+
+  .lime {
+    background: var(--color-lime);
+  }
+
+  .project-type {
+    margin: 0 0 48px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  h3 {
+    margin: 0;
+    font-size: 32px;
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+
+  .project-description {
+    margin: 20px 0;
+    font-size: 17px;
+  }
+
+  .project-status {
+    width: fit-content;
+    margin: auto 0 0;
+    padding: 6px 12px;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+  }
+</style>

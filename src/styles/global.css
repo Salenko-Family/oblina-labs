@@ -1,1 +1,28 @@
-@import "tailwindcss";
+:root {
+  --color-background: #fffdf5;
+  --color-text: #191919;
+  --color-accent: #6c3cff;
+  --color-lime: #c8ff4d;
+  --color-pink: #ff77c8;
+  --color-yellow: #ffd84d;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--color-background);
+  color: var(--color-text);
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.5;
+}
+
+a {
+  color: inherit;
+}

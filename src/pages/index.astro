@@ -1,17 +1,111 @@
 ---
-
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Header from "../components/Header.astro";
+import ProjectCard from "../components/ProjectCard.astro";
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout title="Oblina Labs">
+  <Header />
+  <main>
+    <section id="hero">
+      <p class="hero-label">Independent R&D lab</p>
+      <h1>Ми створюємо, тестуємо та ділимося ідеями</h1>
+      <p class="hero-description">
+        Місце, де ідеї перетворюються на продукти, експерименти та навчальні
+        матеріали.
+      </p>
+      <a class="hero-link" href="#projects">Дивитися проєкти</a>
+    </section>
+    <section id="projects">
+      <h2>Рекомендовані проекти</h2>
+      <div class="project-grid">
+        <ProjectCard
+          title="Віршодрук"
+          ,
+          description="Тренажер швидкого друку та вивчення віршів"
+          type="Tool"
+          status="Prototype"
+          color="pink"
+        />
+        <ProjectCard
+          title="Programming Sandbox"
+          description="Інтерактивний простір для практики програмування безпосередньо в браузері."
+          type="Learning tool"
+          status="Concept"
+          color="yellow"
+        />
+        <ProjectCard
+          title="2048"
+          description="Власна реалізація класичної гри 2048."
+          type="Game"
+          status="Completed"
+          color="lime"
+        />
+      </div>
+    </section>
+    <section id="experiments"><h2>Експерименти</h2></section>
+    <section id="learn"><h2>Навчання</h2></section>
+    <section id="about"><h2>Про Oblina Labs</h2></section>
+  </main>
+  <footer>Oblina Labs</footer>
+</BaseLayout>
+<style>
+  main {
+    width: min(1200px, calc(100% - 48px));
+    margin: 0 auto;
+  }
+
+  #hero {
+    margin-top: 40px;
+    margin-bottom: 96px;
+    padding: clamp(40px, 7vw, 96px);
+    background: var(--color-lime);
+    border: 2px solid var(--color-text);
+    border-radius: 24px;
+  }
+  .hero-label {
+    margin: 0 0 24px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  #hero h1 {
+    max-width: 900px;
+    margin: 0;
+    font-size: clamp(48px, 7vw, 88px);
+    line-height: 0.95;
+    letter-spacing: -0.05em;
+  }
+  .hero-description {
+    max-width: 680px;
+    margin: 32px 0;
+    font-size: 20px;
+  }
+  .hero-link {
+    display: inline-block;
+    padding: 14px 22px;
+    background: var(--color-text);
+    color: var(--color-background);
+    border-radius: 999px;
+    font-weight: 700;
+    text-decoration: none;
+  }
+  #projects {
+    margin-bottom: 120px;
+  }
+
+  #projects > h2 {
+    max-width: 700px;
+    margin: 0 0 40px;
+    font-size: clamp(36px, 5vw, 64px);
+    line-height: 1;
+    letter-spacing: -0.04em;
+  }
+
+  .project-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+</style>
