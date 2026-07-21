@@ -5,6 +5,31 @@ import ProjectCard from "../components/ProjectCard.astro";
 import ExperimentCard from "../components/ExperimentCard.astro";
 import LearningCard from "../components/LearningCard.astro";
 import Footer from "../components/Footer.astro";
+
+const projects = [
+  {
+    title: "Віршодрук",
+    description: "Тренажер швидкого друку та вивчення віршів",
+    type: "Product",
+    status: "Prototype",
+    color: "pink",
+  },
+  {
+    title: "Programming Sandbox",
+    description:
+      "Інтерактивний простір для практики програмування безпосередньо в браузері.",
+    type: "Learning tool",
+    status: "Concept",
+    color: "yellow",
+  },
+  {
+    title: "2048",
+    description: "Власна реалізація класичної гри 2048.",
+    type: "Game",
+    status: "Completed",
+    color: "lime",
+  },
+] as const;
 ---
 
 <BaseLayout title="Oblina Labs">
@@ -22,28 +47,17 @@ import Footer from "../components/Footer.astro";
     <section id="projects">
       <h2>Рекомендовані проекти</h2>
       <div class="project-grid">
-        <ProjectCard
-          title="Віршодрук"
-          ,
-          description="Тренажер швидкого друку та вивчення віршів"
-          type="Tool"
-          status="Prototype"
-          color="pink"
-        />
-        <ProjectCard
-          title="Programming Sandbox"
-          description="Інтерактивний простір для практики програмування безпосередньо в браузері."
-          type="Learning tool"
-          status="Concept"
-          color="yellow"
-        />
-        <ProjectCard
-          title="2048"
-          description="Власна реалізація класичної гри 2048."
-          type="Game"
-          status="Completed"
-          color="lime"
-        />
+        {
+          projects.map((project) => (
+            <ProjectCard
+              title={project.title}
+              description={project.description}
+              type={project.type}
+              status={project.status}
+              color={project.color}
+            />
+          ))
+        }
       </div>
     </section>
     <section id="experiments">
@@ -107,6 +121,21 @@ import Footer from "../components/Footer.astro";
     width: min(1200px, calc(100% - 48px));
     margin: 0 auto;
   }
+  #projects,
+  #experiments,
+  #learn,
+  #about {
+    margin-bottom: 120px;
+  }
+
+  #projects > h2,
+  #experiments > h2,
+  #learn > h2 {
+    margin: 0 0 40px;
+    font-size: clamp(36px, 5vw, 64px);
+    line-height: 1;
+    letter-spacing: -0.04em;
+  }
 
   #hero {
     margin-top: 40px;
@@ -144,51 +173,18 @@ import Footer from "../components/Footer.astro";
     font-weight: 700;
     text-decoration: none;
   }
-  #projects {
-    margin-bottom: 120px;
-  }
-
-  #projects > h2 {
-    max-width: 700px;
-    margin: 0 0 40px;
-    font-size: clamp(36px, 5vw, 64px);
-    line-height: 1;
-    letter-spacing: -0.04em;
-  }
 
   .project-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 20px;
   }
-  #experiments {
-    margin-bottom: 120px;
-  }
-
-  #experiments > h2 {
-    margin: 0 0 40px;
-    font-size: clamp(36px, 5vw, 64px);
-    line-height: 1;
-    letter-spacing: -0.04em;
-  }
-  #learn {
-    margin-bottom: 120px;
-  }
-
-  #learn > h2 {
-    margin: 0 0 40px;
-    font-size: clamp(36px, 5vw, 64px);
-    line-height: 1;
-    letter-spacing: -0.04em;
-  }
-
   .learning-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 20px;
   }
   #about {
-    margin-bottom: 120px;
     padding: clamp(40px, 7vw, 80px);
     background: var(--color-accent);
     color: var(--color-background);
