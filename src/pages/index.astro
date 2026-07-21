@@ -2,6 +2,9 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Header from "../components/Header.astro";
 import ProjectCard from "../components/ProjectCard.astro";
+import ExperimentCard from "../components/ExperimentCard.astro";
+import LearningCard from "../components/LearningCard.astro";
+import Footer from "../components/Footer.astro";
 ---
 
 <BaseLayout title="Oblina Labs">
@@ -43,11 +46,61 @@ import ProjectCard from "../components/ProjectCard.astro";
         />
       </div>
     </section>
-    <section id="experiments"><h2>Експерименти</h2></section>
-    <section id="learn"><h2>Навчання</h2></section>
-    <section id="about"><h2>Про Oblina Labs</h2></section>
+    <section id="experiments">
+      <h2>Експерименти</h2>
+      <div>
+        <ExperimentCard
+          title="Promise Playground"
+          description="Інтерактивна демонстрація станів Promise та порядку виконання асинхронного коду."
+          status="In progress"
+        />
+        <ExperimentCard
+          title="Generative Music Sketch"
+          description="Експеримент із програмною генерацією коротких музичних послідовностей."
+          status="Idea"
+        />
+      </div>
+    </section>
+    <section id="learn">
+      <h2>Навчання</h2>
+      <div class="learning-grid">
+        <LearningCard
+          title="Як працюють JavaScript Promises"
+          description="Покрокове пояснення станів Promise, методів then і catch та асинхронного виконання коду."
+          format="Guide"
+          level="Beginner"
+        />
+
+        <LearningCard
+          title="Astro Islands"
+          description="Розбираємо, як Astro додає інтерактивність лише тим компонентам, яким вона справді потрібна."
+          format="Article"
+          level="Intermediate"
+        />
+      </div>
+    </section>
+    <section id="about">
+      <p class="about-label">Про Oblina Labs</p>
+
+      <h2>
+        Простір, де ідеї перетворюються на експерименти, навчальні матеріали та
+        справжні продукти.
+      </h2>
+
+      <div class="about-content">
+        <p>
+          Oblina Labs — незалежна лабораторія для власних розробок, досліджень і
+          творчих технічних проєктів.
+        </p>
+
+        <p>
+          Тут можна не лише побачити готовий результат, а й простежити шлях від
+          початкової гіпотези до прототипу або завершеного продукту.
+        </p>
+      </div>
+    </section>
   </main>
-  <footer>Oblina Labs</footer>
+  <Footer />
 </BaseLayout>
 <style>
   main {
@@ -107,5 +160,104 @@ import ProjectCard from "../components/ProjectCard.astro";
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 20px;
+  }
+  #experiments {
+    margin-bottom: 120px;
+  }
+
+  #experiments > h2 {
+    margin: 0 0 40px;
+    font-size: clamp(36px, 5vw, 64px);
+    line-height: 1;
+    letter-spacing: -0.04em;
+  }
+  #learn {
+    margin-bottom: 120px;
+  }
+
+  #learn > h2 {
+    margin: 0 0 40px;
+    font-size: clamp(36px, 5vw, 64px);
+    line-height: 1;
+    letter-spacing: -0.04em;
+  }
+
+  .learning-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+  #about {
+    margin-bottom: 120px;
+    padding: clamp(40px, 7vw, 80px);
+    background: var(--color-accent);
+    color: var(--color-background);
+    border: 2px solid var(--color-text);
+    border-radius: 24px;
+  }
+
+  .about-label {
+    margin: 0 0 32px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  #about h2 {
+    max-width: 950px;
+    margin: 0 0 64px;
+    font-size: clamp(36px, 5vw, 64px);
+    line-height: 1;
+    letter-spacing: -0.04em;
+  }
+
+  .about-content {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px;
+  }
+
+  .about-content p {
+    margin: 0;
+    font-size: 18px;
+  }
+  @media (max-width: 800px) {
+    main {
+      width: calc(100% - 32px);
+    }
+    .learning-grid {
+      grid-template-columns: 1fr;
+    }
+    #about {
+      padding: 40px 24px;
+    }
+
+    #about h2 {
+      margin-bottom: 40px;
+    }
+
+    .about-content {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    #hero {
+      margin-top: 16px;
+      margin-bottom: 72px;
+      padding: 40px 24px;
+    }
+
+    #hero h1 {
+      font-size: clamp(42px, 13vw, 64px);
+    }
+
+    .hero-description {
+      font-size: 18px;
+    }
+
+    .project-grid {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

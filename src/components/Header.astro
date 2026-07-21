@@ -46,4 +46,18 @@
     text-decoration: none;
     font-weight: 500;
   }
+
+  @media (max-width: 800px) {
+    header {
+      width: calc(100% - 32px);
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    ul {
+      flex-wrap: wrap;
+      gap: 10px 20px;
+    }
+  }
 </style>

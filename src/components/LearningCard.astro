@@ -1,0 +1,79 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  format: "Article" | "Guide" | "Interactive";
+  level: "Beginner" | "Intermediate" | "Advanced";
+}
+
+const { title, description, format, level } = Astro.props;
+---
+
+<article>
+  <div class="learning-meta">
+    <span>{format}</span>
+    <span>{level}</span>
+  </div>
+
+  <h3>{title}</h3>
+  <p>{description}</p>
+
+  <a href="/">Read material →</a>
+</article>
+<style>
+  article {
+    min-height: 340px;
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    background: var(--color-background);
+    border: 2px solid var(--color-text);
+    border-radius: 20px;
+  }
+
+  .learning-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 48px;
+  }
+
+  .learning-meta span {
+    padding: 6px 10px;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  h3 {
+    margin: 0;
+    font-size: clamp(28px, 3vw, 40px);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+  }
+
+  article > p {
+    margin: 20px 0;
+    font-size: 17px;
+  }
+
+  a {
+    width: fit-content;
+    margin-top: auto;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 800px) {
+    article {
+      min-height: 300px;
+      padding: 28px;
+    }
+  }
+</style>

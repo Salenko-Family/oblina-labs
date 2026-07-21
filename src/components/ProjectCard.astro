@@ -66,4 +66,10 @@ const { title, description, type, status, color } = Astro.props;
     font-size: 13px;
     font-weight: 700;
   }
+
+  @media (max-width: 800px) {
+    article {
+      min-height: 280px;
+    }
+  }
 </style>
