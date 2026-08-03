@@ -6,6 +6,8 @@ import ExperimentCard from "../components/ExperimentCard.astro";
 import LearningCard from "../components/LearningCard.astro";
 import Footer from "../components/Footer.astro";
 
+const currentTime = new Date().toLocaleTimeString();
+
 const projects = [
   {
     title: "Віршодрук",
@@ -36,6 +38,7 @@ const projects = [
   <Header />
   <main>
     <section id="hero">
+      <p>Сторінку створено о: {currentTime}</p>
       <p class="hero-label">Independent R&D lab</p>
       <h1>Ми створюємо, тестуємо та ділимося ідеями</h1>
       <p class="hero-description">
