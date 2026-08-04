@@ -83,6 +83,8 @@ jobs:
             cd /srv/salenko-family/apps/oblina-labs/deploy
 
             export OBLINA_LABS_IMAGE="ghcr.io/anastasiia-salenko/oblina-labs:${{ github.sha }}"
-            
+            export GHCR_TOKEN="${{ github.token }}"
+            export GHCR_USERNAME="${{ github.actor }}"
+
             docker compose pull
             docker compose up -d --wait
