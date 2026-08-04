@@ -81,5 +81,8 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /srv/salenko-family/apps/oblina-labs/deploy
+
+            export OBLINA_LABS_IMAGE="ghcr.io/anastasiia-salenko/oblina-labs:${{ github.sha }}"
+            
             docker compose pull
             docker compose up -d --wait
