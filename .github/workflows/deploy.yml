@@ -70,5 +70,5 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ vars.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "${{ github.workspace }}/deploy/compose.yml"
+          source: "deploy/compose.yml"
           target: /srv/salenko-family/apps/oblina-labs/
