@@ -1,7 +1,0 @@
-services:
-  oblina-labs:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "4321:4321"

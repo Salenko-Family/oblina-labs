@@ -1,0 +1,14 @@
+services:
+  oblina-labs:
+    image: ${OBLINA_LABS_IMAGE}
+    container_name: oblina-labs
+    restart: unless-stopped
+
+    networks:
+      salenko_public:
+        aliases:
+          - oblina-labs-app
+
+networks:
+  salenko_public:
+    external: true
