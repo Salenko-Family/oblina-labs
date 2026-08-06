@@ -6,7 +6,9 @@ import ExperimentCard from "../components/ExperimentCard.astro";
 import LearningCard from "../components/LearningCard.astro";
 import Footer from "../components/Footer.astro";
 
-const currentTime = new Date().toLocaleTimeString();
+const currentTime = new Date().toLocaleTimeString("uk-UA", {
+  timeZone: "Europe/Kyiv",
+});
 
 const projects = [
   {
