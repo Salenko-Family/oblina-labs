@@ -12,7 +12,7 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: anastasiia-salenko/oblina-labs
+  IMAGE_NAME: salenko-family/oblina-labs
 
 jobs:
   build:
@@ -82,7 +82,7 @@ jobs:
           script: |
             cd /srv/salenko-family/apps/oblina-labs/deploy
 
-            export OBLINA_LABS_IMAGE="ghcr.io/anastasiia-salenko/oblina-labs:${{ github.sha }}"
+            export OBLINA_LABS_IMAGE="ghcr.io/salenko-family/oblina-labs:${{ github.sha }}"
             export GHCR_TOKEN="${{ github.token }}"
             export GHCR_USERNAME="${{ github.actor }}"
             printf '%s\n' "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin
