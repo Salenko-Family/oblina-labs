@@ -7,35 +7,21 @@ interface Props {
 }
 
 const { title, description, status, href } = Astro.props;
+
+const Tag = href ? "a" : "article";
 ---
 
-{
-  href ? (
-    <a href={href}>
-      <article>
-        <div>
-          <p class="experiment-label">Experiment</p>
-          <h3>{title}</h3>
-          <p class="experiment-description">{description}</p>
-        </div>
+<Tag href={href} class="experiment-card">
+  <div>
+    <p class="experiment-label">Experiment</p>
+    <h3>{title}</h3>
+    <p class="experiment-description">{description}</p>
+  </div>
 
-        <p class="experiment-status">{status}</p>
-      </article>
-    </a>
-  ) : (
-    <article>
-      <div>
-        <p class="experiment-label">Experiment</p>
-        <h3>{title}</h3>
-        <p class="experiment-description">{description}</p>
-      </div>
-
-      <p class="experiment-status">{status}</p>
-    </article>
-  )
-}
+  <p class="experiment-status">{status}</p>
+</Tag>
 <style>
-  article {
+  .experiment-card {
     padding: 32px;
     display: flex;
     align-items: flex-end;
@@ -76,7 +62,7 @@ const { title, description, status, href } = Astro.props;
   }
 
   @media (max-width: 800px) {
-    article {
+    .experiment-card {
       padding: 28px 0;
       align-items: flex-start;
       flex-direction: column;
