@@ -1,4 +1,4 @@
-const columnAddition = (strA: string, strB: string) => {
+export const columnAddition = (strA: string, strB: string) => {
   let i = strA.length - 1;
   let j = strB.length - 1;
   let carry = 0;
