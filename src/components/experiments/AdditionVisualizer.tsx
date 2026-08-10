@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ChangeEvent } from "react";
 import { traceAddition } from "../../labs/tracers/traceAddition";
 import { columnAddition } from "../../labs/01-long-ar-sum";
 
@@ -6,6 +6,10 @@ interface Props {
   strA: string;
   strB: string;
 }
+
+const generateRandomNumber = (max: number): string => {
+  return String(Math.floor(Math.random() * max));
+};
 
 const AdditionVisualizer = ({ strA, strB }: Props) => {
   const [firstNumber, setFirstNumber] = useState(strA);
@@ -21,6 +25,12 @@ const AdditionVisualizer = ({ strA, strB }: Props) => {
     secondNumber.length,
     result?.length ?? 0,
   );
+
+  const resetVisualization = () => {
+    setSteps([]);
+    setResult(null);
+    setCurrentStepIndex(0);
+  };
 
   const visiblePartialResult = currentStep
     ? currentStep.partialResult
@@ -70,23 +80,34 @@ const AdditionVisualizer = ({ strA, strB }: Props) => {
     ));
   };
 
-  const generateButtonHandler = () => {
-    const generatedFirstNumber = String(Math.floor(Math.random() * 10000));
-    const generatedSecondNumber = String(Math.floor(Math.random() * 10000));
+  const firstNumberChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
 
-    setFirstNumber(generatedFirstNumber);
-    setSecondNumber(generatedSecondNumber);
-    setSteps([]);
-    setResult(null);
-    setCurrentStepIndex(0);
+    if (/^\d*$/.test(value)) {
+      setFirstNumber(value);
+      resetVisualization();
+    }
   };
 
-  const inputExampleButtonHandler = (firstNum: string, secondNum: string) => {
-    setFirstNumber(firstNum);
-    setSecondNumber(secondNum);
-    setSteps([]);
-    setResult(null);
-    setCurrentStepIndex(0);
+  const secondNumberChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+
+    if (/^\d*$/.test(value)) {
+      setSecondNumber(value);
+      resetVisualization();
+    }
+  };
+
+  const generateButtonHandler = () => {
+    setFirstNumber(generateRandomNumber(10000));
+    setSecondNumber(generateRandomNumber(10000));
+    resetVisualization();
+  };
+
+  const presetSelectHandler = (firstValue: string, secondValue: string) => {
+    setFirstNumber(firstValue);
+    setSecondNumber(secondValue);
+    resetVisualization();
   };
 
   const runButtonHandler = () => {
@@ -144,16 +165,7 @@ const AdditionVisualizer = ({ strA, strB }: Props) => {
             type="text"
             value={firstNumber}
             inputMode="numeric"
-            onChange={(event) => {
-              const value = event.target.value;
-
-              if (/^\d*$/.test(value)) {
-                setFirstNumber(value);
-                setCurrentStepIndex(0);
-                setSteps([]);
-                setResult(null);
-              }
-            }}
+            onChange={firstNumberChangeHandler}
           />
         </label>
 
@@ -169,16 +181,7 @@ const AdditionVisualizer = ({ strA, strB }: Props) => {
             type="text"
             value={secondNumber}
             inputMode="numeric"
-            onChange={(event) => {
-              const value = event.target.value;
-
-              if (/^\d*$/.test(value)) {
-                setSecondNumber(value);
-                setCurrentStepIndex(0);
-                setSteps([]);
-                setResult(null);
-              }
-            }}
+            onChange={secondNumberChangeHandler}
           />
         </label>
       </div>
@@ -201,13 +204,16 @@ const AdditionVisualizer = ({ strA, strB }: Props) => {
         }}
       >
         <p>Приклади</p>
-        <button onClick={() => inputExampleButtonHandler("95", "5")}>
+        <button type="button" onClick={() => presetSelectHandler("95", "5")}>
           95 + 5
         </button>
-        <button onClick={() => inputExampleButtonHandler("500", "500")}>
+        <button type="button" onClick={() => presetSelectHandler("500", "500")}>
           500 + 500
         </button>
-        <button onClick={() => inputExampleButtonHandler("999999", "1")}>
+        <button
+          type="button"
+          onClick={() => presetSelectHandler("999999", "1")}
+        >
           999999 + 1
         </button>
       </div>
@@ -263,6 +269,7 @@ const AdditionVisualizer = ({ strA, strB }: Props) => {
             }}
           >
             <button
+              type="button"
               onClick={backButtonHandler}
               disabled={currentStepIndex === 0}
             >
@@ -278,6 +285,7 @@ const AdditionVisualizer = ({ strA, strB }: Props) => {
               }}
             />
             <button
+              type="button"
               onClick={nextButtonHandler}
               disabled={currentStepIndex === steps.length - 1}
             >
