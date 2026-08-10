@@ -141,14 +141,69 @@ const AdditionVisualizer = ({ strA, strB }: Props) => {
         display: "flex",
         flexDirection: "column",
         gap: "24px",
-        maxWidth: "600px",
+
+        width: "100%",
+        maxWidth: "900px",
         margin: "0 auto",
-        padding: "24px",
+        padding: "32px",
+        boxSizing: "border-box",
+
+        backgroundColor: "#fffdf5",
+        border: "2px solid #171717",
+        borderRadius: "24px",
+        boxShadow: "8px 8px 0 #171717",
       }}
     >
+      <header
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-start",
+          gap: "12px",
+        }}
+      >
+        <p
+          style={{
+            width: "fit-content",
+            margin: 0,
+            padding: "6px 10px",
+
+            backgroundColor: "#d9ff66",
+            border: "1px solid #171717",
+            borderRadius: "999px",
+
+            fontSize: "12px",
+            fontWeight: 700,
+            letterSpacing: "0.12em",
+            textTransform: "uppercase",
+          }}
+        >
+          ІНТЕРАКТИВНИЙ ПРИКЛАД
+        </p>
+        <h2
+          style={{
+            margin: 0,
+            fontSize: "clamp(28px, 5vw, 42px)",
+            lineHeight: 1.1,
+          }}
+        >
+          Додавання стовпчиком
+        </h2>
+        <p
+          style={{
+            margin: 0,
+            color: "#555",
+            fontSize: "16px",
+            lineHeight: 1.5,
+          }}
+        >
+          Введіть два числа або виберіть готовий приклад.
+        </p>
+      </header>
       <div
         style={{
           display: "flex",
+          alignItems: "flex-end",
           gap: "16px",
           flexWrap: "wrap",
         }}
@@ -158,6 +213,8 @@ const AdditionVisualizer = ({ strA, strB }: Props) => {
             display: "flex",
             flexDirection: "column",
             gap: "8px",
+            flex: "1 1 180px",
+            fontWeight: 600,
           }}
         >
           Перше число
@@ -168,12 +225,23 @@ const AdditionVisualizer = ({ strA, strB }: Props) => {
             onChange={firstNumberChangeHandler}
           />
         </label>
-
+        <span
+          style={{
+            paddingBottom: "12px",
+            fontSize: "28px",
+            fontWeight: 700,
+            lineHeight: 1,
+          }}
+        >
+          +
+        </span>
         <label
           style={{
             display: "flex",
             flexDirection: "column",
             gap: "8px",
+            flex: "1 1 180px",
+            fontWeight: 600,
           }}
         >
           Друге число
@@ -186,113 +254,270 @@ const AdditionVisualizer = ({ strA, strB }: Props) => {
         </label>
       </div>
       <button
+        style={{
+          minHeight: "49px",
+          padding: "0 24px",
+          backgroundColor: "#d9ff66",
+          border: "2px solid #171717",
+          borderRadius: "10px",
+          boxShadow: "3px 3px 0 #171717",
+          fontSize: "16px",
+          fontWeight: 700,
+          cursor:
+            firstNumber === "" || secondNumber === ""
+              ? "not-allowed"
+              : "pointer",
+          opacity: firstNumber === "" || secondNumber === "" ? 0.5 : 1,
+        }}
         type="button"
         onClick={runButtonHandler}
         disabled={firstNumber === "" || secondNumber === ""}
       >
-        Виконати
-      </button>
-      <button type="button" onClick={generateButtonHandler}>
-        Згенерувати
+        Порахувати
       </button>
       <div
         style={{
           display: "flex",
-          gap: "16px",
+          alignItems: "center",
+          gap: "12px",
           flexWrap: "wrap",
-          flexDirection: "column",
+          paddingTop: "4px",
         }}
       >
-        <p>Приклади</p>
-        <button type="button" onClick={() => presetSelectHandler("95", "5")}>
+        <button
+          type="button"
+          onClick={generateButtonHandler}
+          style={{
+            padding: "9px 14px",
+            backgroundColor: "#fff",
+            border: "2px solid #171717",
+            borderRadius: "999px",
+            fontSize: "14px",
+            fontWeight: 600,
+            cursor: "pointer",
+          }}
+        >
+          ↻ Випадкові числа
+        </button>
+
+        <span
+          style={{
+            color: "#555",
+            fontSize: "14px",
+            fontWeight: 600,
+          }}
+        >
+          Готові приклади:
+        </span>
+
+        <button
+          type="button"
+          onClick={() => presetSelectHandler("95", "5")}
+          style={{
+            padding: "9px 14px",
+            backgroundColor: "transparent",
+            border: "1px solid #171717",
+            borderRadius: "999px",
+            fontSize: "14px",
+            cursor: "pointer",
+          }}
+        >
           95 + 5
         </button>
-        <button type="button" onClick={() => presetSelectHandler("500", "500")}>
+
+        <button
+          type="button"
+          onClick={() => presetSelectHandler("500", "500")}
+          style={{
+            padding: "9px 14px",
+            backgroundColor: "transparent",
+            border: "1px solid #171717",
+            borderRadius: "999px",
+            fontSize: "14px",
+            cursor: "pointer",
+          }}
+        >
           500 + 500
         </button>
+
         <button
           type="button"
           onClick={() => presetSelectHandler("999999", "1")}
+          style={{
+            padding: "9px 14px",
+            backgroundColor: "transparent",
+            border: "1px solid #171717",
+            borderRadius: "999px",
+            fontSize: "14px",
+            cursor: "pointer",
+          }}
         >
           999999 + 1
         </button>
       </div>
       {steps.length > 0 && currentStep && (
-        <>
-          <p>
-            Крок {currentStepIndex + 1} із {steps.length}
-          </p>
-          <div
-            style={{
-              whiteSpace: "pre",
-              fontFamily: "monospace",
-              fontSize: "28px",
-              lineHeight: "1.4",
-              width: "fit-content",
-              padding: "20px",
-            }}
-          >
-            <div
-              style={{
-                fontSize: "28px",
-                lineHeight: "1.4",
-                color: "#666",
-                minHeight: "1.4em",
-              }}
-            >
-              {" "}
-              {renderCarry()}
-            </div>
-            <div> {renderNumber(firstNumber)}</div>
-            <div>+{renderNumber(secondNumber)}</div>
-            <div>{"-".repeat(columnWidth + 1)}</div>
-            <div> {visiblePartialResult}</div>
-          </div>
-          <p>
-            {currentStep.digitA} + {currentStep.digitB}
-            {currentStep.carryIn > 0
-              ? ` + ${currentStep.carryIn} переносу`
-              : ""}
-            {" = "}
-            {currentStep.sum}. Записуємо {currentStep.resultDigit}.
-            {currentStep.carryOut > 0
-              ? ` ${currentStep.carryOut} переносимо в наступний розряд.`
-              : " Нового переносу немає."}
-          </p>
-
+        <section
+          style={{
+            display: "grid",
+            gridTemplateColumns: "minmax(220px, 0.8fr) minmax(280px, 1.2fr)",
+            gap: "24px",
+            padding: "24px",
+            backgroundColor: "#f4f0e5",
+            border: "2px solid #171717",
+            borderRadius: "18px",
+          }}
+        >
           <div
             style={{
               display: "flex",
               alignItems: "center",
-              gap: "12px",
-              flexWrap: "wrap",
+              justifyContent: "center",
+              minHeight: "260px",
+              padding: "20px",
+              boxSizing: "border-box",
+              backgroundColor: "#fffdf5",
+              border: "2px solid #171717",
+              borderRadius: "14px",
             }}
           >
-            <button
-              type="button"
-              onClick={backButtonHandler}
-              disabled={currentStepIndex === 0}
-            >
-              Назад
-            </button>
-            <input
-              type="range"
-              min={0}
-              max={steps.length - 1}
-              value={currentStepIndex}
-              onChange={(event) => {
-                setCurrentStepIndex(Number(event.target.value));
+            <div
+              style={{
+                width: "fit-content",
+                whiteSpace: "pre",
+                fontFamily: "monospace",
+                fontSize: "32px",
+                lineHeight: "1.4",
               }}
-            />
-            <button
-              type="button"
-              onClick={nextButtonHandler}
-              disabled={currentStepIndex === steps.length - 1}
             >
-              Далі
-            </button>
+              <div
+                style={{
+                  color: "#666",
+                  minHeight: "1.4em",
+                }}
+              >
+                {" "}
+                {renderCarry()}
+              </div>
+
+              <div> {renderNumber(firstNumber)}</div>
+              <div>+{renderNumber(secondNumber)}</div>
+              <div>{"-".repeat(columnWidth + 1)}</div>
+              <div> {visiblePartialResult}</div>
+            </div>
           </div>
-        </>
+
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              gap: "24px",
+              padding: "4px 0",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "12px",
+              }}
+            >
+              <p
+                style={{
+                  width: "fit-content",
+                  margin: 0,
+                  padding: "6px 10px",
+                  backgroundColor: "#d9ff66",
+                  border: "1px solid #171717",
+                  borderRadius: "999px",
+                  fontSize: "13px",
+                  fontWeight: 700,
+                }}
+              >
+                Крок {currentStepIndex + 1} із {steps.length}
+              </p>
+
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: "18px",
+                  lineHeight: 1.6,
+                }}
+              >
+                {currentStep.digitA} + {currentStep.digitB}
+                {currentStep.carryIn > 0
+                  ? ` + ${currentStep.carryIn} переносу`
+                  : ""}
+                {" = "}
+                {currentStep.sum}. Записуємо {currentStep.resultDigit}.
+                {currentStep.carryOut > 0
+                  ? ` ${currentStep.carryOut} переносимо в наступний розряд.`
+                  : " Нового переносу немає."}
+              </p>
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "12px",
+              }}
+            >
+              <button
+                type="button"
+                onClick={backButtonHandler}
+                disabled={currentStepIndex === 0}
+                style={{
+                  padding: "10px 16px",
+                  backgroundColor: "#fff",
+                  border: "2px solid #171717",
+                  borderRadius: "10px",
+                  fontWeight: 600,
+                  cursor: currentStepIndex === 0 ? "not-allowed" : "pointer",
+                  opacity: currentStepIndex === 0 ? 0.5 : 1,
+                }}
+              >
+                Назад
+              </button>
+
+              <input
+                type="range"
+                min={0}
+                max={steps.length - 1}
+                value={currentStepIndex}
+                onChange={(event) => {
+                  setCurrentStepIndex(Number(event.target.value));
+                }}
+                aria-label="Поточний крок"
+                style={{
+                  flex: 1,
+                  minWidth: 0,
+                  accentColor: "#171717",
+                }}
+              />
+
+              <button
+                type="button"
+                onClick={nextButtonHandler}
+                disabled={currentStepIndex === steps.length - 1}
+                style={{
+                  padding: "10px 16px",
+                  backgroundColor: "#d9ff66",
+                  border: "2px solid #171717",
+                  borderRadius: "10px",
+                  fontWeight: 700,
+                  cursor:
+                    currentStepIndex === steps.length - 1
+                      ? "not-allowed"
+                      : "pointer",
+                  opacity: currentStepIndex === steps.length - 1 ? 0.5 : 1,
+                }}
+              >
+                Далі
+              </button>
+            </div>
+          </div>
+        </section>
       )}
     </div>
   );
