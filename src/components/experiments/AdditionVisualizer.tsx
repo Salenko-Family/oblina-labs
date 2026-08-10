@@ -143,9 +143,9 @@ const AdditionVisualizer = ({ strA, strB }: Props) => {
         gap: "24px",
 
         width: "100%",
-        maxWidth: "900px",
+        maxWidth: "1200px",
         margin: "0 auto",
-        padding: "32px",
+        padding: "clamp(16px, 5vw, 32px)",
         boxSizing: "border-box",
 
         backgroundColor: "#fffdf5",
@@ -225,16 +225,6 @@ const AdditionVisualizer = ({ strA, strB }: Props) => {
             onChange={firstNumberChangeHandler}
           />
         </label>
-        <span
-          style={{
-            paddingBottom: "12px",
-            fontSize: "28px",
-            fontWeight: 700,
-            lineHeight: 1,
-          }}
-        >
-          +
-        </span>
         <label
           style={{
             display: "flex",
@@ -359,9 +349,10 @@ const AdditionVisualizer = ({ strA, strB }: Props) => {
         <section
           style={{
             display: "grid",
-            gridTemplateColumns: "minmax(220px, 0.8fr) minmax(280px, 1.2fr)",
-            gap: "24px",
-            padding: "24px",
+            gridTemplateColumns:
+              "repeat(auto-fit, minmax(min(100%, 280px), 1fr))",
+            gap: "clamp(16px, 4vw, 24px)",
+            padding: "clamp(12px, 4vw, 24px)",
             backgroundColor: "#f4f0e5",
             border: "2px solid #171717",
             borderRadius: "18px",
@@ -372,7 +363,7 @@ const AdditionVisualizer = ({ strA, strB }: Props) => {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              minHeight: "260px",
+              minHeight: "clamp(190px, 35vw, 260px)",
               padding: "20px",
               boxSizing: "border-box",
               backgroundColor: "#fffdf5",
@@ -461,6 +452,7 @@ const AdditionVisualizer = ({ strA, strB }: Props) => {
                 display: "flex",
                 alignItems: "center",
                 gap: "12px",
+                flexWrap: "wrap",
               }}
             >
               <button
@@ -490,8 +482,8 @@ const AdditionVisualizer = ({ strA, strB }: Props) => {
                 }}
                 aria-label="Поточний крок"
                 style={{
-                  flex: 1,
-                  minWidth: 0,
+                  flex: "1 1 100px",
+                  minWidth: "80px",
                   accentColor: "#171717",
                 }}
               />

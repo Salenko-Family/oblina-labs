@@ -4,7 +4,13 @@ import AdditionVisualizer from "../../components/experiments/AdditionVisualizer"
 ---
 
 <BaseLayout title="Long Addition — Oblina Labs">
-  <main>
+  <main
+    style={{
+      width: "100%",
+      padding: "clamp(24px, 6vw, 64px) 16px",
+      boxSizing: "border-box",
+    }}
+  >
     <AdditionVisualizer strA="283" strB="384" client:load />
   </main>
 </BaseLayout>
