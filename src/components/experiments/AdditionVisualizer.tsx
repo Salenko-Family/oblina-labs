@@ -22,9 +22,6 @@ const AdditionVisualizer = ({ strA, strB }: Props) => {
     result?.length ?? 0,
   );
 
-  const alignedFirstNumber = firstNumber.padStart(columnWidth, " ");
-  const alignedSecondNumber = secondNumber.padStart(columnWidth, " ");
-
   const visiblePartialResult = currentStep
     ? currentStep.partialResult
         .split("")
@@ -32,6 +29,46 @@ const AdditionVisualizer = ({ strA, strB }: Props) => {
         .join("")
         .padStart(columnWidth, " ")
     : "";
+
+  const activeColumnIndex = columnWidth - 1 - currentStepIndex;
+
+  const renderNumber = (number: string) => {
+    const alignedNumber = number.padStart(columnWidth, " ");
+
+    return alignedNumber.split("").map((digit, index) => (
+      <span
+        key={index}
+        style={{
+          display: "inline-block",
+          width: "1ch",
+          backgroundColor:
+            index === activeColumnIndex ? "#d9ff66" : "transparent",
+        }}
+      >
+        {digit}
+      </span>
+    ));
+  };
+
+  const renderCarry = () => {
+    const carryRow = Array(columnWidth).fill(" ");
+
+    if (currentStep?.carryOut > 0 && activeColumnIndex > 0) {
+      carryRow[activeColumnIndex - 1] = String(currentStep.carryOut);
+    }
+
+    return carryRow.map((digit, index) => (
+      <span
+        key={index}
+        style={{
+          display: "inline-block",
+          width: "1ch",
+        }}
+      >
+        {digit}
+      </span>
+    ));
+  };
 
   const generateButtonHandler = () => {
     const generatedFirstNumber = String(Math.floor(Math.random() * 10000));
@@ -189,8 +226,19 @@ const AdditionVisualizer = ({ strA, strB }: Props) => {
               padding: "20px",
             }}
           >
-            <div> {alignedFirstNumber}</div>
-            <div>+{alignedSecondNumber}</div>
+            <div
+              style={{
+                fontSize: "28px",
+                lineHeight: "1.4",
+                color: "#666",
+                minHeight: "1.4em",
+              }}
+            >
+              {" "}
+              {renderCarry()}
+            </div>
+            <div> {renderNumber(firstNumber)}</div>
+            <div>+{renderNumber(secondNumber)}</div>
             <div>{"-".repeat(columnWidth + 1)}</div>
             <div> {visiblePartialResult}</div>
           </div>
