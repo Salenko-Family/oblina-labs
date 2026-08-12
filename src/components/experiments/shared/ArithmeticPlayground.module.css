@@ -1,0 +1,51 @@
+.playground {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: clamp(16px, 5vw, 32px);
+  box-sizing: border-box;
+
+  background-color: #fffdf5;
+  border: 2px solid #171717;
+  border-radius: 24px;
+  box-shadow: 8px 8px 0 #171717;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.label {
+  width: fit-content;
+  margin: 0;
+  padding: 6px 10px;
+
+  background-color: #d9ff66;
+  border: 1px solid #171717;
+  border-radius: 999px;
+
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(28px, 5vw, 42px);
+  line-height: 1.1;
+}
+
+.description {
+  margin: 0;
+  color: #555;
+  font-size: 16px;
+  line-height: 1.5;
+}

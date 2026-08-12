@@ -2,6 +2,9 @@ import { useState, type ChangeEvent } from "react";
 import { traceAddition } from "../../../labs/tracers/traceAddition";
 import { columnAddition } from "../../../labs/01-long-ar-sum";
 import styles from "./AdditionVisualizer.module.css";
+import ArithmeticPlayground from "../shared/ArithmeticPlayground";
+import PresetButtons, { type ArithmeticPreset } from "../shared/PresetButtons";
+import StepNavigation from "../shared/StepNavigation";
 
 interface Props {
   strA: string;
@@ -12,7 +15,7 @@ const generateRandomNumber = (max: number): string => {
   return String(Math.floor(Math.random() * max));
 };
 
-const PRESETS = [
+const PRESETS: ArithmeticPreset[] = [
   {
     label: "95 + 5",
     firstNumber: "95",
@@ -138,27 +141,11 @@ const AdditionVisualizer = ({ strA, strB }: Props) => {
     setCurrentStepIndex(0);
   };
 
-  const nextButtonHandler = () => {
-    if (currentStepIndex < steps.length - 1) {
-      setCurrentStepIndex(currentStepIndex + 1);
-    }
-  };
-
-  const backButtonHandler = () => {
-    if (currentStepIndex > 0) {
-      setCurrentStepIndex(currentStepIndex - 1);
-    }
-  };
-
   return (
-    <div className={styles.playground}>
-      <header className={styles.header}>
-        <p className={styles.label}>ІНТЕРАКТИВНИЙ ПРИКЛАД</p>
-        <h2 className={styles.title}>Додавання стовпчиком</h2>
-        <p className={styles.description}>
-          Введіть два числа або виберіть готовий приклад.
-        </p>
-      </header>
+    <ArithmeticPlayground
+      title="Додавання стовпчиком"
+      description="Введіть два числа або виберіть готовий приклад."
+    >
       <div className={styles.numberFields}>
         <label className={styles.numberLabel}>
           Перше число
@@ -187,28 +174,11 @@ const AdditionVisualizer = ({ strA, strB }: Props) => {
       >
         Порахувати
       </button>
-      <div className={styles.presets}>
-        <button
-          className={styles.randomButton}
-          type="button"
-          onClick={generateButtonHandler}
-        >
-          ↻ Випадкові числа
-        </button>
-        <span className={styles.presetsLabel}>Готові приклади:</span>
-        {PRESETS.map((preset) => (
-          <button
-            className={styles.presetButton}
-            type="button"
-            key={preset.label}
-            onClick={() =>
-              presetSelectHandler(preset.firstNumber, preset.secondNumber)
-            }
-          >
-            {preset.label}
-          </button>
-        ))}
-      </div>
+      <PresetButtons
+        presets={PRESETS}
+        onGenerate={generateButtonHandler}
+        onSelect={presetSelectHandler}
+      />
       {steps.length > 0 && currentStep && (
         <section className={styles.result}>
           <div className={styles.calculationPanel}>
@@ -241,41 +211,15 @@ const AdditionVisualizer = ({ strA, strB }: Props) => {
               </p>
             </div>
 
-            <div className={styles.navigation}>
-              <input
-                className={styles.stepRange}
-                type="range"
-                min={0}
-                max={steps.length - 1}
-                value={currentStepIndex}
-                onChange={(event) => {
-                  setCurrentStepIndex(Number(event.target.value));
-                }}
-                aria-label="Поточний крок"
-              />
-
-              <button
-                className={`${styles.navigationButton} ${styles.backButton}`}
-                type="button"
-                onClick={backButtonHandler}
-                disabled={currentStepIndex === 0}
-              >
-                Назад
-              </button>
-
-              <button
-                className={`${styles.navigationButton} ${styles.nextButton}`}
-                type="button"
-                onClick={nextButtonHandler}
-                disabled={currentStepIndex === steps.length - 1}
-              >
-                Далі
-              </button>
-            </div>
+            <StepNavigation
+              currentStepIndex={currentStepIndex}
+              stepsCount={steps.length}
+              onStepChange={setCurrentStepIndex}
+            />
           </div>
         </section>
       )}
-    </div>
+    </ArithmeticPlayground>
   );
 };
 
