@@ -60,6 +60,11 @@ const additionStepCode = `type AdditionStep = {
         <p class="article-lead">
           Як точно додавати числа, більші за можливості JavaScript
         </p>
+        <div class="article-meta">
+          <span>Авторка: Анастасія Саленко</span>
+          <span aria-hidden="true">·</span>
+          <time datetime="2026-08-12">12 серпня 2026</time>
+        </div>
       </header>
 
       <section>
@@ -392,6 +397,22 @@ const additionStepCode = `type AdditionStep = {
 
   .article-header {
     margin-bottom: clamp(40px, 7vw, 72px);
+  }
+
+  .article-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-top: 24px;
+    color: var(--color-muted, #5f5f5f);
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .article-meta span,
+  .article-meta time {
+    font: inherit;
   }
 
   .article > section {

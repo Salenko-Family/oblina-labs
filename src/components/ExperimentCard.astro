@@ -4,9 +4,10 @@ interface Props {
   description: string;
   status: string;
   href?: string;
+  publishedAt?: string;
 }
 
-const { title, description, status, href } = Astro.props;
+const { title, description, status, href, publishedAt } = Astro.props;
 
 const Tag = href ? "a" : "article";
 ---
@@ -16,6 +17,13 @@ const Tag = href ? "a" : "article";
     <p class="experiment-label">Experiment</p>
     <h3>{title}</h3>
     <p class="experiment-description">{description}</p>
+    {
+      publishedAt && (
+        <time class="experiment-date" datetime={publishedAt}>
+          {publishedAt}
+        </time>
+      )
+    }
   </div>
 
   <p class="experiment-status">{status}</p>
@@ -59,6 +67,14 @@ const Tag = href ? "a" : "article";
     border-radius: 999px;
     font-size: 13px;
     font-weight: 700;
+  }
+
+  .experiment-date {
+    display: block;
+    margin-top: 16px;
+    color: var(--color-muted, #666);
+    font-size: 14px;
+    line-height: 1.5;
   }
 
   @media (max-width: 800px) {
