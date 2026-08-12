@@ -99,8 +99,8 @@ const AdditionVisualizer = ({ strA, strB }: Props) => {
   };
 
   const generateButtonHandler = () => {
-    setFirstNumber(generateRandomNumber(10000));
-    setSecondNumber(generateRandomNumber(10000));
+    setFirstNumber(generateRandomNumber(10000000000));
+    setSecondNumber(generateRandomNumber(10000000000));
     resetVisualization();
   };
 
@@ -344,6 +344,20 @@ const AdditionVisualizer = ({ strA, strB }: Props) => {
         >
           999999 + 1
         </button>
+        <button
+          type="button"
+          onClick={() => presetSelectHandler("59372051294", "94729473914")}
+          style={{
+            padding: "9px 14px",
+            backgroundColor: "transparent",
+            border: "1px solid #171717",
+            borderRadius: "999px",
+            fontSize: "14px",
+            cursor: "pointer",
+          }}
+        >
+          Дуже довгі числа
+        </button>
       </div>
       {steps.length > 0 && currentStep && (
         <section
@@ -449,29 +463,12 @@ const AdditionVisualizer = ({ strA, strB }: Props) => {
 
             <div
               style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "12px",
-                flexWrap: "wrap",
+                display: "grid",
+                gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                gap: "14px",
+                width: "100%",
               }}
             >
-              <button
-                type="button"
-                onClick={backButtonHandler}
-                disabled={currentStepIndex === 0}
-                style={{
-                  padding: "10px 16px",
-                  backgroundColor: "#fff",
-                  border: "2px solid #171717",
-                  borderRadius: "10px",
-                  fontWeight: 600,
-                  cursor: currentStepIndex === 0 ? "not-allowed" : "pointer",
-                  opacity: currentStepIndex === 0 ? 0.5 : 1,
-                }}
-              >
-                Назад
-              </button>
-
               <input
                 type="range"
                 min={0}
@@ -482,27 +479,63 @@ const AdditionVisualizer = ({ strA, strB }: Props) => {
                 }}
                 aria-label="Поточний крок"
                 style={{
-                  flex: "1 1 100px",
-                  minWidth: "80px",
+                  gridColumn: "1 / -1",
+                  width: "100%",
+                  margin: 0,
                   accentColor: "#171717",
                 }}
               />
 
               <button
                 type="button"
+                onClick={backButtonHandler}
+                disabled={currentStepIndex === 0}
+                style={{
+                  width: "100%",
+                  minHeight: "48px",
+                  padding: "10px 16px",
+
+                  backgroundColor: "#fff",
+                  border: "2px solid #171717",
+                  borderRadius: "10px",
+
+                  fontSize: "16px",
+                  fontWeight: 600,
+
+                  cursor: currentStepIndex === 0 ? "not-allowed" : "pointer",
+
+                  opacity: currentStepIndex === 0 ? 0.45 : 1,
+                }}
+              >
+                Назад
+              </button>
+
+              <button
+                type="button"
                 onClick={nextButtonHandler}
                 disabled={currentStepIndex === steps.length - 1}
                 style={{
+                  width: "100%",
+                  minHeight: "48px",
                   padding: "10px 16px",
+
                   backgroundColor: "#d9ff66",
                   border: "2px solid #171717",
                   borderRadius: "10px",
+                  boxShadow:
+                    currentStepIndex === steps.length - 1
+                      ? "none"
+                      : "3px 3px 0 #171717",
+
+                  fontSize: "16px",
                   fontWeight: 700,
+
                   cursor:
                     currentStepIndex === steps.length - 1
                       ? "not-allowed"
                       : "pointer",
-                  opacity: currentStepIndex === steps.length - 1 ? 0.5 : 1,
+
+                  opacity: currentStepIndex === steps.length - 1 ? 0.45 : 1,
                 }}
               >
                 Далі
