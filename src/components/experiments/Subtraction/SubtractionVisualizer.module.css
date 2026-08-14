@@ -33,6 +33,13 @@
   opacity: 0.5;
 }
 
+.error {
+  margin: 0;
+  color: #b42318;
+  font-size: 14px;
+  font-weight: 600;
+}
+
 .result {
   display: grid;
   grid-template-columns: repeat(
@@ -69,11 +76,6 @@
   font-family: monospace;
   font-size: 32px;
   line-height: 1.4;
-}
-
-.carryRow {
-  min-height: 1em;
-  color: #666;
 }
 
 .digit {
@@ -117,4 +119,25 @@
   margin: 0;
   font-size: 18px;
   line-height: 1.6;
+}
+
+.borrowRow {
+  min-height: 1em;
+  color: #b42318;
+}
+
+.borrowDigit {
+  position: relative;
+  display: inline-block;
+  width: 1ch;
+  height: 1em;
+}
+
+.borrowMark {
+  position: absolute;
+  top: 0;
+  right: 0;
+
+  font: inherit;
+  white-space: nowrap;
 }
