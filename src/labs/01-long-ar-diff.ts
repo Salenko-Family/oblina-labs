@@ -1,23 +1,23 @@
 const columnSubtraction = (strA: string, strB: string) => {
   let i = strA.length - 1;
   let j = strB.length - 1;
-  let carry = 0;
+  let borrow = 0;
   let result = "";
 
-  while (i >= 0 || j >= 0 || carry !== 0) {
-    const digitA = i >= 0 ? Number(strA[i]) : 0;
+  while (i >= 0) {
+    const digitA = Number(strA[i]);
     const digitB = j >= 0 ? Number(strB[j]) : 0;
 
-    let diff = digitA - digitB - carry;
+    let diff = digitA - digitB - borrow;
 
     if (diff < 0) {
       diff += 10;
-      carry = 1;
+      borrow = 1;
     } else {
-      carry = 0;
+      borrow = 0;
     }
 
-    result += diff % 10;
+    result += diff;
 
     i--;
     j--;
