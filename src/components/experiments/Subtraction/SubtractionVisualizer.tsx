@@ -22,6 +22,11 @@ const SUBTRACTION_PRESETS: ArithmeticPreset[] = [
     secondNumber: "1",
   },
   {
+    label: "100 − 91",
+    firstNumber: "100",
+    secondNumber: "91",
+  },
+  {
     label: "55555 − 12349",
     firstNumber: "55555",
     secondNumber: "12349",
