@@ -13,19 +13,64 @@
     throw new Error("Не вдалося отримати 2D-контекст");
   }
 
-  function drawSquare(
+  type Line = {
+    endX: number;
+    endY: number;
+  };
+
+  const lines: Line[] = [];
+
+  function drawLine(
     canvas: HTMLCanvasElement,
     context: CanvasRenderingContext2D,
-    squareSize: number,
+    line: Line,
   ) {
-    const squareX = (canvas.width - squareSize) / 2;
-    const squareY = (canvas.height - squareSize) / 2;
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
 
-    context.fillStyle = "#9cff57";
-    context.fillRect(squareX, squareY, squareSize, squareSize);
+    context.beginPath();
+    context.moveTo(centerX, centerY);
+    context.lineTo(line.endX, line.endY);
+    context.stroke();
   }
 
-  drawSquare(canvas, context, 100);
+  function drawLines(
+    canvas: HTMLCanvasElement,
+    context: CanvasRenderingContext2D,
+    lines: Line[],
+  ) {
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (let i = 0; i < lines.length; i++) {
+      drawLine(canvas, context, lines[i]);
+    }
+  }
+
+  function animate() {
+    if (!(canvas instanceof HTMLCanvasElement)) {
+      throw new Error("Canvas не знайдено");
+    }
+
+    if (!context) {
+      throw new Error("Не вдалося отримати 2D-контекст");
+    }
+
+    const line: Line = {
+      endX: Math.random() * canvas.width,
+      endY: Math.random() * canvas.height,
+    };
+
+    lines.push(line);
+
+    if (lines.length > 50) {
+      lines.shift();
+    }
+
+    drawLines(canvas, context, lines);
+    requestAnimationFrame(animate);
+  }
+
+  animate();
 </script>
 
 <style>
