@@ -34,6 +34,12 @@
     context.stroke();
   }
 
+  function drawPoint(context: CanvasRenderingContext2D, line: Line) {
+    context.beginPath();
+    context.arc(line.endX, line.endY, 4, 0, Math.PI * 2);
+    context.fill();
+  }
+
   function drawLines(
     canvas: HTMLCanvasElement,
     context: CanvasRenderingContext2D,
@@ -43,6 +49,7 @@
 
     for (let i = 0; i < lines.length; i++) {
       drawLine(canvas, context, lines[i]);
+      drawPoint(context, lines[i]);
     }
   }
 
