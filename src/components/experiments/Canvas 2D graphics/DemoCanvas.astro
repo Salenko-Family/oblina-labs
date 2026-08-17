@@ -1,0 +1,36 @@
+<canvas id="canvas-demo" width="400" height="300"></canvas>
+
+<script>
+  const canvas = document.getElementById("canvas-demo");
+
+  if (!(canvas instanceof HTMLCanvasElement)) {
+    throw new Error("Canvas не знайдено");
+  }
+
+  const context = canvas.getContext("2d");
+
+  if (!context) {
+    throw new Error("Не вдалося отримати 2D-контекст");
+  }
+
+  function drawSquare(
+    canvas: HTMLCanvasElement,
+    context: CanvasRenderingContext2D,
+    squareSize: number,
+  ) {
+    const squareX = (canvas.width - squareSize) / 2;
+    const squareY = (canvas.height - squareSize) / 2;
+
+    context.fillStyle = "#9cff57";
+    context.fillRect(squareX, squareY, squareSize, squareSize);
+  }
+
+  drawSquare(canvas, context, 100);
+</script>
+
+<style>
+  #canvas-demo {
+    display: block;
+    border: 2px solid #171717;
+  }
+</style>
