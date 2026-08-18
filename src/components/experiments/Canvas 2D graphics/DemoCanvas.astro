@@ -54,6 +54,7 @@
   type Line = {
     endX: number;
     endY: number;
+    color: string;
   };
 
   const lines: Line[] = [];
@@ -70,12 +71,16 @@
     context.beginPath();
     context.moveTo(centerX, centerY);
     context.lineTo(line.endX, line.endY);
+    context.strokeStyle = line.color;
+    context.lineWidth = 1.5;
+    context.lineCap = "round";
     context.stroke();
   }
 
   function drawPoint(context: CanvasRenderingContext2D, line: Line) {
     context.beginPath();
-    context.arc(line.endX, line.endY, 4, 0, Math.PI * 2);
+    context.arc(line.endX, line.endY, 3, 0, Math.PI * 2);
+    context.fillStyle = line.color;
     context.fill();
   }
 
@@ -98,6 +103,15 @@
     clearButton.disabled = lines.length === 0;
   }
 
+  const lineColors = [
+    "#5f4bb6",
+    "#c94f6d",
+    "#d0782a",
+    "#26877b",
+    "#3d6fa3",
+    "#718c24",
+  ];
+
   function animate() {
     if (!isRunning) {
       return;
@@ -111,9 +125,12 @@
       throw new Error("Не вдалося отримати 2D-контекст");
     }
 
+    const colorIndex = Math.floor(Math.random() * lineColors.length);
+
     const line: Line = {
       endX: Math.random() * canvas.width,
       endY: Math.random() * canvas.height,
+      color: lineColors[colorIndex],
     };
 
     lines.push(line);
