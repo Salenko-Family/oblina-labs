@@ -1,0 +1,13 @@
+<canvas id="carpet-demo" width="400" height="400"></canvas>
+
+<script>
+  const canvas = document.getElementById("carpet-demo");
+  if (!(canvas instanceof HTMLCanvasElement)) {
+    throw new Error("Canvas не знайдено");
+  }
+
+  const context = canvas.getContext("2d");
+  if (!context) {
+    throw new Error("Не вдалося отримати 2D-контекст");
+  }
+</script>

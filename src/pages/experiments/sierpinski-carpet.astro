@@ -1,0 +1,96 @@
+---
+import DemoCarpet from "../../components/experiments/Sierpinski Carpet/DemoCarpet.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Serpinski carpet - Oblina Labs">
+  <main class="article-page">
+    <article class="article">
+      <header class="article-header">
+        <p class="article-label">Вебграфіка</p>
+        <h1>Килим Серпінського</h1>
+        <p class="article-lead">
+          Як за допомогою рекурсії побудувати фрактал на Canvas
+        </p>
+        <div class="article-meta">
+          <span>Авторка: Анастасія Саленко</span>
+          <span aria-hidden="true">·</span>
+          <time datetime="2026-08-18">18 серпня 2026</time>
+        </div>
+      </header>
+    </article>
+  </main>
+  <section>
+    <DemoCarpet />
+  </section>
+</BaseLayout>
+
+<style>
+  .article-page {
+    width: 100%;
+    padding: clamp(24px, 6vw, 64px) 16px;
+    box-sizing: border-box;
+  }
+
+  .article {
+    width: min(100%, 1200px);
+    margin: 0 auto;
+  }
+
+  .article-header,
+  .article > section:not(:has(.playground)) {
+    width: min(100%, 1200px);
+    margin-inline: auto;
+  }
+
+  .article-header {
+    margin-bottom: clamp(40px, 7vw, 72px);
+  }
+
+  .article-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+
+    margin-top: 24px;
+
+    color: var(--color-muted, #5f5f5f);
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .article-meta span,
+  .article-meta time {
+    font: inherit;
+  }
+
+  .article > section {
+    margin-bottom: clamp(56px, 8vw, 96px);
+  }
+
+  .article-label {
+    margin: 0 0 12px;
+
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    margin: 0;
+
+    font-size: clamp(2.75rem, 8vw, 5.5rem);
+    line-height: 0.95;
+    letter-spacing: -0.05em;
+  }
+
+  .article-lead {
+    max-width: 680px;
+    margin: 24px 0 0;
+
+    font-size: clamp(1.25rem, 3vw, 1.75rem);
+    line-height: 1.35;
+  }
+</style>
