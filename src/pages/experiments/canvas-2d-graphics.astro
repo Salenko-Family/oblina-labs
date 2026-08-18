@@ -1,17 +1,570 @@
 ---
 import DemoCanvas from "../../components/experiments/Canvas 2D graphics/DemoCanvas.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const canvasElementCode = `<canvas id="canvas-demo" width="400" height="300"></canvas>`;
+const canvasContextCode = `const canvas = document.getElementById("canvas-demo");
+
+if (!(canvas instanceof HTMLCanvasElement)) {
+  throw new Error("Canvas не знайдено");
+}
+
+const context = canvas.getContext("2d");
+
+if (!context) {
+  throw new Error("Не вдалося отримати 2D-контекст");
+}`;
+
+const canvasCenterCode = `const centerX = canvas.width / 2;
+const centerY = canvas.height / 2;`;
+
+const drawLineCode = `function drawLine(
+  canvas: HTMLCanvasElement,
+  context: CanvasRenderingContext2D,
+  line: Line,
+) {
+  const centerX = canvas.width / 2;
+  const centerY = canvas.height / 2;
+
+  context.beginPath();
+  context.moveTo(centerX, centerY);
+  context.lineTo(line.endX, line.endY);
+
+  context.strokeStyle = line.color;
+  context.lineWidth = 1.5;
+  context.lineCap = "round";
+  context.stroke();
+}`;
+const randomLineCode = `const lineColors = [
+  "#5f4bb6",
+  "#c94f6d",
+  "#d0782a",
+  "#26877b",
+  "#3d6fa3",
+  "#718c24",
+];
+
+const colorIndex = Math.floor(Math.random() * lineColors.length);
+
+const line: Line = {
+  endX: Math.random() * canvas.width,
+  endY: Math.random() * canvas.height,
+  color: lineColors[colorIndex],
+};`;
+const animationLoopCode = `function animate() {
+  if (!isRunning) {
+    return;
+  }
+
+  const colorIndex = Math.floor(Math.random() * lineColors.length);
+
+  const line: Line = {
+    endX: Math.random() * canvas.width,
+    endY: Math.random() * canvas.height,
+    color: lineColors[colorIndex],
+  };
+
+  lines.push(line);
+
+  if (lines.length > 50) {
+    lines.shift();
+  }
+
+  drawLines(canvas, context, lines);
+  requestAnimationFrame(animate);
+}`;
+const lineStateCode = `type Line = {
+  endX: number;
+  endY: number;
+  color: string;
+};
+
+const lines: Line[] = [];`;
+
+const drawLinesCode = `function drawLines(
+  canvas: HTMLCanvasElement,
+  context: CanvasRenderingContext2D,
+  lines: Line[],
+) {
+  context.clearRect(0, 0, canvas.width, canvas.height);
+
+  for (let i = 0; i < lines.length; i++) {
+    drawLine(canvas, context, lines[i]);
+    drawPoint(context, lines[i]);
+  }
+}`;
+const drawPointCode = `function drawPoint(
+  context: CanvasRenderingContext2D,
+  line: Line,
+) {
+  context.beginPath();
+  context.arc(line.endX, line.endY, 3, 0, Math.PI * 2);
+  context.fillStyle = line.color;
+  context.fill();
+}`;
 ---
 
-<html lang="uk">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
-    <title>Canvas: 2D-графіка</title>
-  </head>
+<BaseLayout title="Canvas: 2D graphics — Oblina Labs">
+  <main class="article-page">
+    <article class="article">
+      <header class="article-header">
+        <p class="article-label">Вебграфіка</p>
+        <h1>Canvas: 2D графіка</h1>
+        <p class="article-lead">
+          Як програмно малювати фігури та створювати анімацію у браузері
+        </p>
+        <div class="article-meta">
+          <span>Авторка: Анастасія Саленко</span>
+          <span aria-hidden="true">·</span>
+          <time datetime="2026-08-18">18 серпня 2026</time>
+        </div>
+      </header>
 
-  <body>
-    <h1>Canvas: 2D-графіка</h1>
-    <p>Далі буде</p>
-    <DemoCanvas />
-  </body>
-</html>
+      <section>
+        <p>
+          Більшість елементів вебсторінки браузер створює з HTML і CSS. Але
+          іноді потрібно малювати графіку програмно: будувати фігури, змінювати
+          зображення в кожному кадрі або створювати інтерактивні візуалізації.
+          Для таких завдань у браузері є елемент <code>&lt;canvas&gt;</code>.
+        </p>
+
+        <p>
+          У цій статті ми розберемо, як працює Canvas і його двовимірна система
+          координат. За допомогою TypeScript створимо анімацію, у якій із центра
+          Canvas з’являються лінії з випадковими кінцевими точками.
+        </p>
+
+        <p>
+          Ми навчимося малювати лінії та кола, зберігати дані про намальовані
+          об’єкти, створювати цикл анімації через <code
+            >requestAnimationFrame()</code
+          > і керувати ним за допомогою кнопок запуску, паузи та очищення.
+        </p>
+      </section>
+
+      <section aria-labelledby="playground-title">
+        <h2 id="playground-title">Спробуйте самі</h2>
+
+        <p>
+          Натисніть <strong>Запуск</strong>, щоб почати анімацію. Із центра
+          Canvas поступово з’являтимуться лінії з випадковими кінцевими точками.
+        </p>
+
+        <p>
+          Використовуйте кнопку <strong>Пауза</strong>, щоб зупинити появу нових
+          ліній, не очищаючи поточне зображення. Кнопка
+          <strong>Очистити</strong> видаляє всі лінії та повертає візуалізацію до
+          початкового стану.
+        </p>
+
+        <div class="playground">
+          <DemoCanvas />
+        </div>
+
+        <p class="note">
+          Одночасно на Canvas зберігається не більше 50 ліній. Коли з’являється
+          нова лінія, найстаріша зникає.
+        </p>
+      </section>
+      <section>
+        <h2>Canvas і 2D-контекст</h2>
+
+        <p>
+          <code>&lt;canvas&gt;</code> — це HTML-елемент для програмного малювання
+          графіки. Сам по собі він створює лише порожню прямокутну область:
+        </p>
+
+        <pre><code>{canvasElementCode}</code></pre>
+
+        <p>
+          Атрибути <code>width</code> і <code>height</code> визначають внутрішній
+          розмір області малювання. У нашому прикладі Canvas має ширину <code
+            >400</code
+          > і висоту <code>300</code> пікселів.
+        </p>
+
+        <p>
+          Щоб малювати всередині цієї області, потрібно знайти Canvas і отримати
+          його 2D-контекст:
+        </p>
+
+        <pre class="code-block"><code>{canvasContextCode}</code></pre>
+
+        <p>
+          <code>canvas</code> можна уявити як поверхню, а <code>context</code> — як
+          набір інструментів для малювання. Через контекст ми створюватимемо контури,
+          задаватимемо кольори, очищатимемо зображення та малюватимемо нові кадри.
+        </p>
+
+        <p>
+          Перевірки потрібні тому, що елемент або 2D-контекст можуть бути не
+          знайдені. Після перевірок TypeScript знає, що ми працюємо саме з <code
+            >HTMLCanvasElement</code
+          > і <code>CanvasRenderingContext2D</code>.
+        </p>
+
+        <p>
+          Canvas зберігає намальовані пікселі, а не окремі об’єкти. Він не
+          пам’ятає, де знаходиться конкретна лінія або коло. Тому для зміни
+          зображення ми зберігатимемо дані окремо, очищатимемо Canvas і
+          малюватимемо актуальний стан заново.
+        </p>
+      </section>
+      <section>
+        <h2>Координати та малювання лінії</h2>
+
+        <p>
+          Початок координат Canvas розташований у верхньому лівому куті — у
+          точці <code>(0, 0)</code>. Координата <code>x</code> збільшується вправо,
+          а <code>y</code> — вниз.
+        </p>
+
+        <p>
+          Усі лінії нашої анімації починаються в центрі Canvas. Щоб знайти його,
+          ділимо ширину та висоту навпіл:
+        </p>
+
+        <pre><code>{canvasCenterCode}</code></pre>
+
+        <p>
+          Для Canvas розміром <code>400 × 300</code> центр має координати <code
+            >(200, 150)</code
+          >. Значення обчислюються, а не записуються вручну, тому залишаться
+          правильними після зміни внутрішнього розміру Canvas.
+        </p>
+
+        <pre class="code-block"><code>{drawLineCode}</code></pre>
+
+        <p>
+          <code>beginPath()</code> починає новий контур, <code>moveTo()</code> переміщує
+          його початкову точку в центр, а <code>lineTo()</code> додає відрізок до
+          кінцевих координат. Метод <code>stroke()</code> відображає готовий контур.
+        </p>
+
+        <p>
+          Перед малюванням ми задаємо колір, товщину та округлені кінці лінії
+          через <code>strokeStyle</code>, <code>lineWidth</code> і <code
+            >lineCap</code
+          >. Функція отримує готовий об’єкт <code>line</code>, тому відповідає
+          лише за його відображення.
+        </p>
+      </section>
+      <section>
+        <h2>Випадкові координати та кольори</h2>
+
+        <p>
+          Усі лінії починаються в центрі, але закінчуються в різних точках. <code
+            >Math.random()</code
+          > повертає випадкове число від <code>0</code> до <code>1</code>.
+          Множення на ширину або висоту перетворює його на координату в межах
+          Canvas.
+        </p>
+
+        <pre class="code-block"><code>{randomLineCode}</code></pre>
+
+        <p>
+          Колір вибирається за випадковим індексом із підготовленої палітри.
+          Координати й колір зберігаються разом в об’єкті <code>Line</code>,
+          тому після перемальовування лінія не змінює свій вигляд.
+        </p>
+      </section>
+      <section>
+        <h2>Цикл анімації</h2>
+
+        <p>
+          Кадр — це одне зображення, показане на екрані. <code
+            >requestAnimationFrame()</code
+          > просить браузер викликати передану функцію перед наступним перемальовуванням.
+        </p>
+
+        <pre class="code-block"><code>{animationLoopCode}</code></pre>
+
+        <p>
+          У кожному кадрі функція створює випадкову лінію, додає її до масиву,
+          перемальовує Canvas і запитує наступний кадр.
+        </p>
+
+        <p>
+          У <code>requestAnimationFrame()</code> передається <code>animate</code
+          > без круглих дужок. Так браузер отримує саму функцію як callback і викликає
+          її пізніше. Запис <code>animate()</code> запустив би її негайно.
+        </p>
+
+        <p>
+          Якщо <code>isRunning</code> дорівнює <code>false</code>, функція
+          завершується через <code>return</code> і не запитує наступний кадр.
+        </p>
+      </section>
+
+      <section>
+        <h2>Зберігаємо та перемальовуємо лінії</h2>
+
+        <p>
+          Canvas зберігає лише пікселі, тому дані про лінії потрібно тримати
+          окремо. Тип <code>Line</code> описує кінцеві координати й колір, а масив<code
+            >lines</code
+          > зберігає поточний стан візуалізації.
+        </p>
+
+        <pre class="code-block"><code>{lineStateCode}</code></pre>
+
+        <p>
+          Під час кожного кадру нова лінія додається в кінець масиву через <code
+            >push()</code
+          >. Якщо елементів стало більше 50, <code>shift()</code> видаляє найстарішу
+          лінію з початку масиву.
+        </p>
+
+        <p>
+          Зміна масиву не прибирає вже намальовані пікселі. Тому після оновлення
+          стану ми очищаємо весь Canvas і заново малюємо актуальні лінії:
+        </p>
+
+        <pre class="code-block"><code>{drawLinesCode}</code></pre>
+
+        <p>
+          <code>clearRect()</code> очищає всю область малювання. Після цього цикл
+          проходить по масиву й відображає кожну лінію та точку на її кінці.
+        </p>
+
+        <p>
+          Таким чином, масив відповідає за те, <em>що</em> має бути показано, а Canvas
+          — за те, <em>як</em> цей стан виглядає на екрані.
+        </p>
+      </section>
+      <section>
+        <h2>Точки на кінцях ліній</h2>
+
+        <p>
+          Кінцеву точку кожної лінії позначаємо невеликим колом. Для його
+          побудови використовується метод <code>arc()</code>.
+        </p>
+
+        <pre class="code-block"><code>{drawPointCode}</code></pre>
+
+        <p>
+          Перші два аргументи <code>arc()</code> задають центр кола, третій — його
+          радіус. Значення від <code>0</code> до <code>Math.PI * 2</code> описують
+          повний оберт, а <code>fill()</code> зафарбовує побудовану фігуру.
+        </p>
+
+        <p>
+          Точка використовує ті самі координати й колір, що й лінія, тому
+          переміщується та видаляється разом із нею.
+        </p>
+      </section>
+      <section>
+        <h2>Керування анімацією</h2>
+
+        <p>
+          Змінна <code>isRunning</code> визначає, чи потрібно створювати наступний
+          кадр. Кнопка <strong>Запуск</strong> змінює її на <code>true</code> і викликає
+          <code>animate()</code>, а кнопка <strong>Пауза</strong> повертає значення
+          <code>false</code>.
+        </p>
+
+        <p>
+          Пауза не очищає Canvas і не змінює масив, тому після повторного
+          запуску анімація продовжується з поточного стану.
+        </p>
+
+        <p>
+          Кнопка <strong>Очистити</strong> зупиняє анімацію, очищає масив через <code
+            >lines.length = 0</code
+          > і видаляє зображення за допомогою <code>clearRect()</code>.
+        </p>
+
+        <p>
+          Властивість <code>disabled</code> синхронізує кнопки зі станом програми:
+          під час роботи запуск недоступний, під час паузи недоступна пауза, а порожній
+          Canvas не потрібно очищати повторно.
+        </p>
+      </section>
+      <section>
+        <h2>Коли використовувати Canvas</h2>
+
+        <p>
+          Canvas підходить для графіки, яку потрібно часто перемальовувати:
+          анімацій, ігор, графічних редакторів, візуалізацій даних та ефектів із
+          великою кількістю об’єктів.
+        </p>
+
+        <p>
+          Звичайний вміст сторінки — текст, кнопки, форми й навігацію — краще
+          залишати в HTML. HTML-елементи мають семантику, підтримують
+          клавіатурну навігацію та доступні допоміжним технологіям. Саме тому
+          кнопки нашого playground розташовані поза Canvas.
+        </p>
+
+        <p>
+          Для іконок, схем і графіків із невеликою кількістю окремих фігур часто
+          зручнішим буде SVG. Його елементи можна знаходити в DOM, стилізувати
+          через CSS і обробляти окремо.
+        </p>
+
+        <p>
+          Canvas варто обирати тоді, коли важливіше швидко перемальовувати все
+          зображення, ніж взаємодіяти з кожною фігурою як з окремим елементом.
+        </p>
+      </section>
+      <section>
+        <h2>Висновок</h2>
+
+        <p>
+          За допомогою Canvas і <code>CanvasRenderingContext2D</code> ми створили
+          анімацію з випадковими лініями та точками. Дані про них зберігаються в масиві,
+          а під час кожного кадру Canvas очищається й відображає актуальний стан.
+        </p>
+
+        <p>
+          Цей приклад поєднує систему координат, callback-функції, <code
+            >requestAnimationFrame()</code
+          > і керування станом. Такий самий принцип — оновити дані та перемалювати
+          кадр — можна використовувати у складніших візуалізаціях, графічних редакторах
+          та іграх.
+        </p>
+      </section>
+    </article>
+  </main>
+</BaseLayout>
+
+<style>
+  .article-page {
+    width: 100%;
+    padding: clamp(24px, 6vw, 64px) 16px;
+    box-sizing: border-box;
+  }
+
+  .article {
+    width: min(100%, 1200px);
+    margin: 0 auto;
+  }
+
+  .article-header,
+  .article > section:not(:has(.playground)) {
+    width: min(100%, 1200px);
+    margin-inline: auto;
+  }
+
+  .article-header {
+    margin-bottom: clamp(40px, 7vw, 72px);
+  }
+
+  .article-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+
+    margin-top: 24px;
+
+    color: var(--color-muted, #5f5f5f);
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .article-meta span,
+  .article-meta time {
+    font: inherit;
+  }
+
+  .article > section {
+    margin-bottom: clamp(56px, 8vw, 96px);
+  }
+
+  .article-label {
+    margin: 0 0 12px;
+
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    margin: 0;
+
+    font-size: clamp(2.75rem, 8vw, 5.5rem);
+    line-height: 0.95;
+    letter-spacing: -0.05em;
+  }
+
+  .article-lead {
+    max-width: 680px;
+    margin: 24px 0 0;
+
+    font-size: clamp(1.25rem, 3vw, 1.75rem);
+    line-height: 1.35;
+  }
+
+  h2 {
+    margin: 0 0 24px;
+
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    line-height: 1.15;
+  }
+
+  p {
+    margin: 0 0 20px;
+
+    font-size: 1.0625rem;
+    line-height: 1.75;
+  }
+
+  code {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  }
+
+  p code {
+    padding: 0.12em 0.35em;
+
+    border: 1px solid currentColor;
+    border-radius: 0.3em;
+
+    font-size: 0.9em;
+  }
+
+  pre {
+    margin: 24px 0;
+    padding: 20px;
+    overflow-x: auto;
+
+    background: #171717;
+    border: 2px solid currentColor;
+    border-radius: 16px;
+    color: #f8f8f2;
+
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  pre code {
+    font: inherit;
+  }
+
+  .playground {
+    margin: 32px 0 20px;
+  }
+
+  .note {
+    font-size: 0.95rem;
+  }
+
+  @media (max-width: 600px) {
+    .article-page {
+      padding-inline: 12px;
+    }
+
+    .article-header,
+    .article > section:not(:has(.playground)) {
+      padding-inline: 4px;
+    }
+
+    pre {
+      padding: 16px;
+      border-radius: 12px;
+
+      font-size: 0.8rem;
+    }
+  }
+</style>
