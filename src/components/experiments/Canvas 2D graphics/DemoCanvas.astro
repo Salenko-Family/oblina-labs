@@ -79,7 +79,7 @@
 
   function drawPoint(context: CanvasRenderingContext2D, line: Line) {
     context.beginPath();
-    context.arc(line.endX, line.endY, 3, 0, Math.PI * 2);
+    context.arc(line.endX, line.endY, 3, 0, 2 * Math.PI);
     context.fillStyle = line.color;
     context.fill();
   }

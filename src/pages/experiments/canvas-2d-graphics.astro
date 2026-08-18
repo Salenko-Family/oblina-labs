@@ -98,7 +98,7 @@ const drawPointCode = `function drawPoint(
   line: Line,
 ) {
   context.beginPath();
-  context.arc(line.endX, line.endY, 3, 0, Math.PI * 2);
+  context.arc(line.endX, line.endY, 3, 0, 2 * Math.PI);
   context.fillStyle = line.color;
   context.fill();
 }`;
@@ -300,9 +300,8 @@ const drawPointCode = `function drawPoint(
 
         <p>
           Canvas зберігає лише пікселі, тому дані про лінії потрібно тримати
-          окремо. Тип <code>Line</code> описує кінцеві координати й колір, а масив<code
-            >lines</code
-          > зберігає поточний стан візуалізації.
+          окремо. Тип <code>Line</code> описує кінцеві координати й колір, а масив
+          <code>lines</code> зберігає поточний стан візуалізації.
         </p>
 
         <pre class="code-block"><code>{lineStateCode}</code></pre>
