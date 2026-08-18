@@ -1,17 +1,55 @@
-<canvas id="canvas-demo" width="400" height="300"></canvas>
+<section class="playground">
+  <header class="header">
+    <p class="label">Інтерактивний приклад</p>
+    <h2 class="title">Генератор випадкових ліній</h2>
+    <p class="description">
+      Запустіть анімацію, поставте її на паузу або очистьте Canvas.
+    </p>
+  </header>
+
+  <div class="canvas-panel">
+    <canvas id="canvas-demo" width="400" height="300"></canvas>
+  </div>
+
+  <div class="controls">
+    <button id="start-button" class="button primary-button" type="button">
+      Запуск
+    </button>
+
+    <button id="pause-button" class="button secondary-button" type="button">
+      Пауза
+    </button>
+
+    <button id="clear-button" class="button secondary-button" type="button">
+      Очистити
+    </button>
+  </div>
+</section>
 
 <script>
   const canvas = document.getElementById("canvas-demo");
-
   if (!(canvas instanceof HTMLCanvasElement)) {
     throw new Error("Canvas не знайдено");
   }
 
   const context = canvas.getContext("2d");
-
   if (!context) {
     throw new Error("Не вдалося отримати 2D-контекст");
   }
+
+  function getButton(id: string): HTMLButtonElement {
+    const button = document.getElementById(id);
+
+    if (!(button instanceof HTMLButtonElement)) {
+      throw new Error(`Кнопку "${id}" не знайдено`);
+    }
+
+    return button;
+  }
+
+  const startButton = getButton("start-button");
+  const pauseButton = getButton("pause-button");
+  const clearButton = getButton("clear-button");
 
   type Line = {
     endX: number;
@@ -19,6 +57,7 @@
   };
 
   const lines: Line[] = [];
+  let isRunning = false;
 
   function drawLine(
     canvas: HTMLCanvasElement,
@@ -53,7 +92,17 @@
     }
   }
 
+  function updateButtons() {
+    startButton.disabled = isRunning;
+    pauseButton.disabled = !isRunning;
+    clearButton.disabled = lines.length === 0;
+  }
+
   function animate() {
+    if (!isRunning) {
+      return;
+    }
+
     if (!(canvas instanceof HTMLCanvasElement)) {
       throw new Error("Canvas не знайдено");
     }
@@ -77,12 +126,156 @@
     requestAnimationFrame(animate);
   }
 
-  animate();
+  startButton.addEventListener("click", () => {
+    if (isRunning) {
+      return;
+    }
+
+    isRunning = true;
+    animate();
+    updateButtons();
+  });
+
+  pauseButton.addEventListener("click", () => {
+    if (!isRunning) {
+      return;
+    }
+    isRunning = false;
+    updateButtons();
+  });
+
+  clearButton.addEventListener("click", () => {
+    isRunning = false;
+    lines.length = 0;
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    updateButtons();
+  });
+  updateButtons();
 </script>
 
 <style>
+  .playground {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: clamp(16px, 5vw, 32px);
+    box-sizing: border-box;
+
+    background-color: #fffdf5;
+    border: 2px solid #171717;
+    border-radius: 24px;
+    box-shadow: 8px 8px 0 #171717;
+  }
+
+  .header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .label {
+    width: fit-content;
+    margin: 0;
+    padding: 6px 10px;
+
+    background-color: #d9ff66;
+    border: 1px solid #171717;
+    border-radius: 999px;
+
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .title {
+    margin: 0;
+    font-size: clamp(28px, 5vw, 42px);
+    line-height: 1.1;
+  }
+
+  .description {
+    margin: 0;
+    color: #555;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  .canvas-panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 340px;
+    padding: clamp(12px, 4vw, 24px);
+    box-sizing: border-box;
+
+    background-color: #f4f0e5;
+    border: 2px solid #171717;
+    border-radius: 18px;
+  }
+
   #canvas-demo {
     display: block;
+    width: min(100%, 400px);
+    height: auto;
+
+    background-color: #fffdf5;
     border: 2px solid #171717;
+    border-radius: 14px;
+  }
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .button {
+    min-height: 49px;
+    padding: 0 24px;
+
+    border: 2px solid #171717;
+    border-radius: 10px;
+    box-shadow: 3px 3px 0 #171717;
+
+    font: inherit;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .primary-button {
+    background-color: #d9ff66;
+  }
+
+  .secondary-button {
+    background-color: #fffdf5;
+  }
+
+  .button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+    box-shadow: none;
+  }
+
+  .button:not(:disabled):active {
+    translate: 2px 2px;
+    box-shadow: 1px 1px 0 #171717;
+  }
+
+  @media (max-width: 480px) {
+    .canvas-panel {
+      min-height: auto;
+    }
+
+    .button {
+      flex: 1 1 120px;
+    }
   }
 </style>
