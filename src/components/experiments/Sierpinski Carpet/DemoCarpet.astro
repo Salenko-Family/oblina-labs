@@ -1,4 +1,11 @@
-<canvas id="carpet-demo" width="400" height="400"></canvas>
+<label for="depth-control">
+  Глибина:
+  <output id="depth-value">3</output>
+</label>
+
+<input id="depth-control" type="range" min="1" max="5" value="3" />
+
+<canvas id="carpet-demo" width="540" height="540"></canvas>
 
 <script>
   const canvas = document.getElementById("carpet-demo");
@@ -10,4 +17,81 @@
   if (!context) {
     throw new Error("Не вдалося отримати 2D-контекст");
   }
+
+  const depthControl = document.getElementById("depth-control");
+  if (!(depthControl instanceof HTMLInputElement)) {
+    throw new Error("Input не знайдено");
+  }
+
+  const depthValue = document.getElementById("depth-value");
+  if (!(depthValue instanceof HTMLOutputElement)) {
+    throw new Error("Output не знайдено");
+  }
+
+  let currentDepth = Number(depthControl.value);
+
+  function render(
+    canvas: HTMLCanvasElement,
+    context: CanvasRenderingContext2D,
+    depthValue: HTMLOutputElement,
+  ) {
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
+    context.fillStyle = "rgb(0 0 100)";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    drawCarpet(context, 0, 0, canvas.width, currentDepth);
+
+    depthValue.value = String(currentDepth);
+  }
+
+  function drawCenterCutout(
+    context: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    size: number,
+  ) {
+    const partSize = size / 3;
+    const centerX = x + partSize;
+    const centerY = y + partSize;
+
+    context.fillStyle = "rgb(0 100 0)";
+    context.fillRect(centerX, centerY, partSize, partSize);
+  }
+
+  function drawCarpet(
+    context: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    size: number,
+    depth: number,
+  ) {
+    drawCenterCutout(context, x, y, size);
+
+    if (depth <= 1) {
+      return;
+    }
+
+    const partSize = size / 3;
+
+    for (let row = 0; row < 3; row++) {
+      for (let column = 0; column < 3; column++) {
+        if (row === 1 && column === 1) {
+          continue;
+        }
+
+        const childX = x + column * partSize;
+        const childY = y + row * partSize;
+
+        drawCarpet(context, childX, childY, partSize, depth - 1);
+      }
+    }
+  }
+
+  depthControl.addEventListener("input", () => {
+    currentDepth = Number(depthControl.value);
+    render(canvas, context, depthValue);
+  });
+
+  render(canvas, context, depthValue);
 </script>
