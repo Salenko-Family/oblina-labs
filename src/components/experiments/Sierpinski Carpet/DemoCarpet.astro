@@ -3,7 +3,7 @@
   <output id="depth-value">3</output>
 </label>
 
-<input id="depth-control" type="range" min="1" max="5" value="3" />
+<input id="depth-control" type="range" min="1" max="8" value="3" />
 
 <canvas id="carpet-demo" width="540" height="540"></canvas>
 
@@ -28,7 +28,78 @@
     throw new Error("Output не знайдено");
   }
 
+  type Camera = {
+    centerX: number;
+    centerY: number;
+    scale: number;
+  };
+
+  const camera: Camera = {
+    centerX: 0.5,
+    centerY: 0.5,
+    scale: 1,
+  };
+
   let currentDepth = Number(depthControl.value);
+
+  function worldToScreenX(
+    worldX: number,
+    canvas: HTMLCanvasElement,
+    camera: Camera,
+  ) {
+    return (
+      (worldX - camera.centerX) * canvas.width * camera.scale + canvas.width / 2
+    );
+  }
+
+  function worldToScreenY(
+    worldY: number,
+    canvas: HTMLCanvasElement,
+    camera: Camera,
+  ) {
+    return (
+      (worldY - camera.centerY) * canvas.height * camera.scale +
+      canvas.height / 2
+    );
+  }
+
+  function worldToScreenWidth(
+    worldSize: number,
+    canvas: HTMLCanvasElement,
+    camera: Camera,
+  ) {
+    return worldSize * canvas.width * camera.scale;
+  }
+
+  function worldToScreenHeight(
+    worldSize: number,
+    canvas: HTMLCanvasElement,
+    camera: Camera,
+  ) {
+    return worldSize * canvas.height * camera.scale;
+  }
+
+  function screenToWorldX(
+    screenX: number,
+    canvas: HTMLCanvasElement,
+    camera: Camera,
+  ) {
+    return (
+      (screenX - canvas.width / 2) / (canvas.width * camera.scale) +
+      camera.centerX
+    );
+  }
+
+  function screenToWorldY(
+    screenY: number,
+    canvas: HTMLCanvasElement,
+    camera: Camera,
+  ) {
+    return (
+      (screenY - canvas.height / 2) / (canvas.height * camera.scale) +
+      camera.centerY
+    );
+  }
 
   function render(
     canvas: HTMLCanvasElement,
@@ -37,10 +108,15 @@
   ) {
     context.clearRect(0, 0, canvas.width, canvas.height);
 
-    context.fillStyle = "rgb(0 0 100)";
-    context.fillRect(0, 0, canvas.width, canvas.height);
+    const carpetX = worldToScreenX(0, canvas, camera);
+    const carpetY = worldToScreenY(0, canvas, camera);
+    const carpetWidth = worldToScreenWidth(1, canvas, camera);
+    const carpetHeight = worldToScreenHeight(1, canvas, camera);
 
-    drawCarpet(context, 0, 0, canvas.width, currentDepth);
+    context.fillStyle = "rgb(0 0 100)";
+    context.fillRect(carpetX, carpetY, carpetWidth, carpetHeight);
+
+    drawCarpet(context, 0, 0, 1, currentDepth, canvas, camera);
 
     depthValue.value = String(currentDepth);
   }
@@ -50,13 +126,20 @@
     x: number,
     y: number,
     size: number,
+    canvas: HTMLCanvasElement,
+    camera: Camera,
   ) {
     const partSize = size / 3;
     const centerX = x + partSize;
     const centerY = y + partSize;
 
+    const screenX = worldToScreenX(centerX, canvas, camera);
+    const screenY = worldToScreenY(centerY, canvas, camera);
+    const screenWidth = worldToScreenWidth(partSize, canvas, camera);
+    const screenHeight = worldToScreenHeight(partSize, canvas, camera);
+
     context.fillStyle = "rgb(0 100 0)";
-    context.fillRect(centerX, centerY, partSize, partSize);
+    context.fillRect(screenX, screenY, screenWidth, screenHeight);
   }
 
   function drawCarpet(
@@ -65,8 +148,10 @@
     y: number,
     size: number,
     depth: number,
+    canvas: HTMLCanvasElement,
+    camera: Camera,
   ) {
-    drawCenterCutout(context, x, y, size);
+    drawCenterCutout(context, x, y, size, canvas, camera);
 
     if (depth <= 1) {
       return;
@@ -83,7 +168,15 @@
         const childX = x + column * partSize;
         const childY = y + row * partSize;
 
-        drawCarpet(context, childX, childY, partSize, depth - 1);
+        drawCarpet(
+          context,
+          childX,
+          childY,
+          partSize,
+          depth - 1,
+          canvas,
+          camera,
+        );
       }
     }
   }
@@ -92,6 +185,40 @@
     currentDepth = Number(depthControl.value);
     render(canvas, context, depthValue);
   });
+
+  canvas.addEventListener(
+    "wheel",
+    (event) => {
+      event.preventDefault();
+
+      const rect = canvas.getBoundingClientRect();
+      const screenX = (event.clientX - rect.left) * (canvas.width / rect.width);
+      const screenY =
+        (event.clientY - rect.top) * (canvas.height / rect.height);
+
+      const worldXBeforeZoom = screenToWorldX(screenX, canvas, camera);
+      const worldYBeforeZoom = screenToWorldY(screenY, canvas, camera);
+
+      const zoomFactor = 1.1;
+
+      if (event.deltaY < 0) {
+        camera.scale *= zoomFactor;
+      } else {
+        camera.scale /= zoomFactor;
+      }
+
+      camera.scale = Math.max(1, Math.min(camera.scale, 10));
+
+      const worldXAfterZoom = screenToWorldX(screenX, canvas, camera);
+      const worldYAfterZoom = screenToWorldY(screenY, canvas, camera);
+
+      camera.centerX += worldXBeforeZoom - worldXAfterZoom;
+      camera.centerY += worldYBeforeZoom - worldYAfterZoom;
+
+      render(canvas, context, depthValue);
+    },
+    { passive: false },
+  );
 
   render(canvas, context, depthValue);
 </script>
