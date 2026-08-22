@@ -1,31 +1,39 @@
-<label for="depth-control">
-  Глибина:
-  <output id="depth-value">3</output>
-</label>
-
-<input id="depth-control" type="range" min="1" max="8" value="3" />
+<p>
+  Ефективна глибина:
+  <output id="depth-value">5</output>
+</p>
 
 <canvas id="carpet-demo" width="540" height="540"></canvas>
 
 <script>
-  const canvas = document.getElementById("carpet-demo");
-  if (!(canvas instanceof HTMLCanvasElement)) {
+  const canvasElement = document.getElementById("carpet-demo");
+  if (!(canvasElement instanceof HTMLCanvasElement)) {
     throw new Error("Canvas не знайдено");
   }
 
-  const context = canvas.getContext("2d");
-  if (!context) {
+  const canvas = canvasElement;
+
+  const canvasContext = canvas.getContext("2d");
+  if (!canvasContext) {
     throw new Error("Не вдалося отримати 2D-контекст");
   }
 
-  const depthControl = document.getElementById("depth-control");
-  if (!(depthControl instanceof HTMLInputElement)) {
-    throw new Error("Input не знайдено");
+  const context = canvasContext;
+
+  const depthValueElement = document.getElementById("depth-value");
+  if (!(depthValueElement instanceof HTMLOutputElement)) {
+    throw new Error("Output не знайдено");
   }
 
-  const depthValue = document.getElementById("depth-value");
-  if (!(depthValue instanceof HTMLOutputElement)) {
-    throw new Error("Output не знайдено");
+  const depthValue = depthValueElement;
+
+  const BASE_DEPTH = 5;
+  const MAX_DEPTH = 24;
+
+  function getEffectiveDepth(scale: number) {
+    const additionalLevels = Math.floor(Math.log(scale) / Math.log(3));
+
+    return Math.min(MAX_DEPTH, BASE_DEPTH + additionalLevels);
   }
 
   type Camera = {
@@ -39,8 +47,6 @@
     centerY: 0.5,
     scale: 1,
   };
-
-  let currentDepth = Number(depthControl.value);
 
   function worldToScreenX(
     worldX: number,
@@ -108,6 +114,7 @@
   ) {
     context.clearRect(0, 0, canvas.width, canvas.height);
 
+    const effectiveDepth = getEffectiveDepth(camera.scale);
     const carpetX = worldToScreenX(0, canvas, camera);
     const carpetY = worldToScreenY(0, canvas, camera);
     const carpetWidth = worldToScreenWidth(1, canvas, camera);
@@ -116,9 +123,9 @@
     context.fillStyle = "rgb(0 0 100)";
     context.fillRect(carpetX, carpetY, carpetWidth, carpetHeight);
 
-    drawCarpet(context, 0, 0, 1, currentDepth, canvas, camera);
+    drawCarpet(context, 0, 0, 1, effectiveDepth, canvas, camera);
 
-    depthValue.value = String(currentDepth);
+    depthValue.value = String(effectiveDepth);
   }
 
   function drawCenterCutout(
@@ -151,6 +158,29 @@
     canvas: HTMLCanvasElement,
     camera: Camera,
   ) {
+    const screenX = worldToScreenX(x, canvas, camera);
+    const screenY = worldToScreenY(y, canvas, camera);
+    const screenWidth = worldToScreenWidth(size, canvas, camera);
+    const screenHeight = worldToScreenHeight(size, canvas, camera);
+
+    const isOutsideCanvas =
+      screenX + screenWidth <= 0 ||
+      screenY + screenHeight <= 0 ||
+      screenX >= canvas.width ||
+      screenY >= canvas.height;
+
+    if (isOutsideCanvas) {
+      return;
+    }
+
+    const cutoutWidth = screenWidth / 3;
+    const cutoutHeight = screenHeight / 3;
+    const isCutoutTooSmall = cutoutWidth < 1 || cutoutHeight < 1;
+
+    if (isCutoutTooSmall) {
+      return;
+    }
+
     drawCenterCutout(context, x, y, size, canvas, camera);
 
     if (depth <= 1) {
@@ -181,11 +211,18 @@
     }
   }
 
-  depthControl.addEventListener("input", () => {
-    currentDepth = Number(depthControl.value);
-    render(canvas, context, depthValue);
-  });
+  let animationFrameId: number | null = null;
 
+  function scheduleRender() {
+    if (animationFrameId !== null) {
+      return;
+    }
+
+    animationFrameId = requestAnimationFrame(() => {
+      animationFrameId = null;
+      render(canvas, context, depthValue);
+    });
+  }
   canvas.addEventListener(
     "wheel",
     (event) => {
@@ -215,7 +252,7 @@
       camera.centerX += worldXBeforeZoom - worldXAfterZoom;
       camera.centerY += worldYBeforeZoom - worldYAfterZoom;
 
-      render(canvas, context, depthValue);
+      scheduleRender();
     },
     { passive: false },
   );
