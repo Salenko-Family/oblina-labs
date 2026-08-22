@@ -1,7 +1,11 @@
-<p>
-  Ефективна глибина:
-  <output id="depth-value">5</output>
-</p>
+<div>
+  <p>
+    Ефективна глибина:
+    <output id="depth-value">5</output>
+  </p>
+
+  <button id="reset-view" type="button"> Скинути вигляд </button>
+</div>
 
 <canvas id="carpet-demo" width="540" height="540"></canvas>
 
@@ -27,8 +31,17 @@
 
   const depthValue = depthValueElement;
 
+  const resetButtonElement = document.getElementById("reset-view");
+  if (!(resetButtonElement instanceof HTMLButtonElement)) {
+    throw new Error("Кнопку скидання не знайдено");
+  }
+
+  const resetButton = resetButtonElement;
+
   const BASE_DEPTH = 5;
   const MAX_DEPTH = 24;
+  const MIN_SCALE = 1;
+  const MAX_SCALE = 3 ** (MAX_DEPTH - BASE_DEPTH);
 
   function getEffectiveDepth(scale: number) {
     const additionalLevels = Math.floor(Math.log(scale) / Math.log(3));
@@ -47,6 +60,12 @@
     centerY: 0.5,
     scale: 1,
   };
+
+  function resetCamera() {
+    camera.centerX = 0.5;
+    camera.centerY = 0.5;
+    camera.scale = MIN_SCALE;
+  }
 
   function worldToScreenX(worldX: number) {
     return (
@@ -81,6 +100,17 @@
       (screenY - canvas.height / 2) / (canvas.height * camera.scale) +
       camera.centerY
     );
+  }
+
+  function constrainCamera() {
+    const halfVisibleWorldSize = 1 / (2 * camera.scale);
+
+    const minCenter = halfVisibleWorldSize;
+    const maxCenter = 1 - halfVisibleWorldSize;
+
+    camera.centerX = Math.max(minCenter, Math.min(camera.centerX, maxCenter));
+
+    camera.centerY = Math.max(minCenter, Math.min(camera.centerY, maxCenter));
   }
 
   function render() {
@@ -193,7 +223,7 @@
         camera.scale /= zoomFactor;
       }
 
-      camera.scale = Math.max(1, Math.min(camera.scale, 10));
+      camera.scale = Math.max(MIN_SCALE, Math.min(camera.scale, MAX_SCALE));
 
       const worldXAfterZoom = screenToWorldX(screenX);
       const worldYAfterZoom = screenToWorldY(screenY);
@@ -201,10 +231,16 @@
       camera.centerX += worldXBeforeZoom - worldXAfterZoom;
       camera.centerY += worldYBeforeZoom - worldYAfterZoom;
 
+      constrainCamera();
+
       scheduleRender();
     },
     { passive: false },
   );
+  resetButton.addEventListener("click", () => {
+    resetCamera();
+    scheduleRender();
+  });
 
   render();
 </script>
