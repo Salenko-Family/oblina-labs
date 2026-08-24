@@ -1,10 +1,10 @@
-<div>
+<div class="carpet-controls">
   <p>
     Ефективна глибина:
     <output id="depth-value">5</output>
   </p>
 
-  <button id="reset-view" type="button"> Скинути вигляд </button>
+  <button id="reset-view" type="button"> Скинути </button>
 </div>
 
 <canvas id="carpet-demo" width="540" height="540"></canvas>
@@ -31,12 +31,12 @@
 
   const depthValue = depthValueElement;
 
-  const resetButtonElement = document.getElementById("reset-view");
-  if (!(resetButtonElement instanceof HTMLButtonElement)) {
+  const resetElement = document.getElementById("reset-view");
+  if (!(resetElement instanceof HTMLButtonElement)) {
     throw new Error("Кнопку скидання не знайдено");
   }
 
-  const resetButton = resetButtonElement;
+  const resetButton = resetElement;
 
   const BASE_DEPTH = 5;
   const MAX_DEPTH = 24;
@@ -111,6 +111,25 @@
     camera.centerX = Math.max(minCenter, Math.min(camera.centerX, maxCenter));
 
     camera.centerY = Math.max(minCenter, Math.min(camera.centerY, maxCenter));
+  }
+
+  function zoomAt(screenX: number, screenY: number, multiplier: number) {
+    const worldXBeforeZoom = screenToWorldX(screenX);
+    const worldYBeforeZoom = screenToWorldY(screenY);
+
+    camera.scale *= multiplier;
+
+    camera.scale = Math.max(MIN_SCALE, Math.min(camera.scale, MAX_SCALE));
+
+    const worldXAfterZoom = screenToWorldX(screenX);
+    const worldYAfterZoom = screenToWorldY(screenY);
+
+    camera.centerX += worldXBeforeZoom - worldXAfterZoom;
+
+    camera.centerY += worldYBeforeZoom - worldYAfterZoom;
+
+    constrainCamera();
+    scheduleRender();
   }
 
   function render() {
@@ -208,35 +227,28 @@
       event.preventDefault();
 
       const rect = canvas.getBoundingClientRect();
+
       const screenX = (event.clientX - rect.left) * (canvas.width / rect.width);
+
       const screenY =
         (event.clientY - rect.top) * (canvas.height / rect.height);
 
-      const worldXBeforeZoom = screenToWorldX(screenX);
-      const worldYBeforeZoom = screenToWorldY(screenY);
-
       const zoomFactor = 1.1;
 
-      if (event.deltaY < 0) {
-        camera.scale *= zoomFactor;
-      } else {
-        camera.scale /= zoomFactor;
-      }
+      const multiplier = event.deltaY < 0 ? zoomFactor : 1 / zoomFactor;
 
-      camera.scale = Math.max(MIN_SCALE, Math.min(camera.scale, MAX_SCALE));
-
-      const worldXAfterZoom = screenToWorldX(screenX);
-      const worldYAfterZoom = screenToWorldY(screenY);
-
-      camera.centerX += worldXBeforeZoom - worldXAfterZoom;
-      camera.centerY += worldYBeforeZoom - worldYAfterZoom;
-
-      constrainCamera();
-
-      scheduleRender();
+      zoomAt(screenX, screenY, multiplier);
     },
     { passive: false },
   );
+
+  resetButton.addEventListener("click", () => {
+    camera.centerX = 0.5;
+    camera.centerY = 0.5;
+    camera.scale = MIN_SCALE;
+
+    scheduleRender();
+  });
   resetButton.addEventListener("click", () => {
     resetCamera();
     scheduleRender();
