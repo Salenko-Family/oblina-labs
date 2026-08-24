@@ -1,13 +1,40 @@
-<div class="carpet-controls">
-  <p>
-    Ефективна глибина:
-    <output id="depth-value">5</output>
-  </p>
+<section class="playground">
+  <header class="header">
+    <p class="label">Інтерактивний приклад</p>
 
-  <button id="reset-view" type="button"> Скинути </button>
-</div>
+    <h2 class="title">Килим Серпінського</h2>
 
-<canvas id="carpet-demo" width="540" height="540"></canvas>
+    <p class="description">
+      Наближайте фрактал коліщатком миші або жестом двома пальцями. Деталізація
+      автоматично збільшується разом із масштабом.
+    </p>
+  </header>
+
+  <div class="canvas-panel">
+    <canvas
+      id="carpet-demo"
+      width="540"
+      height="540"
+      aria-label="Інтерактивний Килим Серпінського"
+    >
+      Ваш браузер не підтримує Canvas.
+    </canvas>
+  </div>
+
+  <div class="controls">
+    <p class="depth-status">
+      Ефективна глибина:
+      <output id="depth-value">5</output>
+      <span aria-hidden="true">/ 24</span>
+    </p>
+
+    <button id="reset-view" class="button secondary-button" type="button">
+      Скинути вигляд
+    </button>
+  </div>
+
+  <p class="hint">Колесо миші або жест двома пальцями — масштабування.</p>
+</section>
 
 <script>
   const canvasElement = document.getElementById("carpet-demo");
@@ -42,6 +69,9 @@
   const MAX_DEPTH = 24;
   const MIN_SCALE = 1;
   const MAX_SCALE = 3 ** (MAX_DEPTH - BASE_DEPTH);
+
+  const CARPET_COLOR = "#264653";
+  const CUTOUT_COLOR = "#dff58a";
 
   function getEffectiveDepth(scale: number) {
     const additionalLevels = Math.floor(Math.log(scale) / Math.log(3));
@@ -155,7 +185,7 @@
     const carpetWidth = worldToScreenWidth(1);
     const carpetHeight = worldToScreenHeight(1);
 
-    context.fillStyle = "rgb(0 0 100)";
+    context.fillStyle = CARPET_COLOR;
     context.fillRect(carpetX, carpetY, carpetWidth, carpetHeight);
 
     drawCarpet(0, 0, 1, effectiveDepth);
@@ -173,7 +203,7 @@
     const screenWidth = worldToScreenWidth(partSize);
     const screenHeight = worldToScreenHeight(partSize);
 
-    context.fillStyle = "rgb(0 100 0)";
+    context.fillStyle = CUTOUT_COLOR;
     context.fillRect(screenX, screenY, screenWidth, screenHeight);
   }
 
@@ -325,7 +355,178 @@
   render();
 </script>
 <style>
+  .playground {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: clamp(16px, 5vw, 32px);
+    box-sizing: border-box;
+
+    background-color: #fffdf5;
+    border: 2px solid #171717;
+    border-radius: 24px;
+    box-shadow: 8px 8px 0 #171717;
+  }
+
+  .header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .label {
+    width: fit-content;
+    margin: 0;
+    padding: 6px 10px;
+
+    background-color: #d9ff66;
+    border: 1px solid #171717;
+    border-radius: 999px;
+
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .title {
+    margin: 0;
+    font-size: clamp(28px, 5vw, 42px);
+    line-height: 1.1;
+  }
+
+  .description {
+    max-width: 760px;
+    margin: 0;
+
+    color: #555;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  .canvas-panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 588px;
+    padding: clamp(12px, 4vw, 24px);
+    box-sizing: border-box;
+
+    overflow: hidden;
+    background-color: #f4f0e5;
+    border: 2px solid #171717;
+    border-radius: 18px;
+  }
+
   #carpet-demo {
+    display: block;
+    width: min(100%, 540px);
+    height: auto;
+    aspect-ratio: 1;
+
+    background-color: #fffdf5;
+    border: 2px solid #171717;
+    border-radius: 14px;
+
     touch-action: none;
+    user-select: none;
+  }
+
+  .controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .depth-status {
+    width: fit-content;
+    margin: 0;
+    padding: 10px 14px;
+
+    background-color: #d9ff66;
+    border: 1px solid #171717;
+    border-radius: 999px;
+
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  #depth-value {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .button {
+    min-height: 49px;
+    padding: 0 24px;
+
+    border: 2px solid #171717;
+    border-radius: 10px;
+    box-shadow: 3px 3px 0 #171717;
+
+    font: inherit;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .secondary-button {
+    background-color: #fffdf5;
+  }
+
+  .button:active {
+    translate: 2px 2px;
+    box-shadow: 1px 1px 0 #171717;
+  }
+
+  .button:focus-visible {
+    outline: 3px solid #d9ff66;
+    outline-offset: 3px;
+  }
+
+  .hint {
+    margin: -8px 0 0;
+
+    color: #666;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  @media (max-width: 640px) {
+    .playground {
+      gap: 20px;
+      box-shadow: 5px 5px 0 #171717;
+    }
+
+    .canvas-panel {
+      min-height: auto;
+      padding: 10px;
+    }
+
+    .controls {
+      align-items: stretch;
+      flex-direction: column;
+    }
+
+    .depth-status {
+      box-sizing: border-box;
+      text-align: center;
+    }
+
+    .button {
+      width: 100%;
+    }
+
+    .hint {
+      margin-top: -4px;
+      text-align: center;
+    }
   }
 </style>
