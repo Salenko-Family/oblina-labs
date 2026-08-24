@@ -61,6 +61,11 @@
     scale: 1,
   };
 
+  type Point = {
+    x: number;
+    y: number;
+  };
+
   function resetCamera() {
     camera.centerX = 0.5;
     camera.centerY = 0.5;
@@ -100,6 +105,15 @@
       (screenY - canvas.height / 2) / (canvas.height * camera.scale) +
       camera.centerY
     );
+  }
+
+  function clientToCanvas(clientX: number, clientY: number): Point {
+    const rect = canvas.getBoundingClientRect();
+
+    return {
+      x: (clientX - rect.left) * (canvas.width / rect.width),
+      y: (clientY - rect.top) * (canvas.height / rect.height),
+    };
   }
 
   function constrainCamera() {
@@ -221,34 +235,88 @@
       render();
     });
   }
+
   canvas.addEventListener(
     "wheel",
     (event) => {
       event.preventDefault();
 
-      const rect = canvas.getBoundingClientRect();
-
-      const screenX = (event.clientX - rect.left) * (canvas.width / rect.width);
-
-      const screenY =
-        (event.clientY - rect.top) * (canvas.height / rect.height);
+      const point = clientToCanvas(event.clientX, event.clientY);
 
       const zoomFactor = 1.1;
 
       const multiplier = event.deltaY < 0 ? zoomFactor : 1 / zoomFactor;
 
-      zoomAt(screenX, screenY, multiplier);
+      zoomAt(point.x, point.y, multiplier);
     },
     { passive: false },
   );
 
-  resetButton.addEventListener("click", () => {
-    camera.centerX = 0.5;
-    camera.centerY = 0.5;
-    camera.scale = MIN_SCALE;
+  const activePointers = new Map<number, Point>();
 
-    scheduleRender();
+  let previousPinchDistance: number | null = null;
+  function getDistance(first: Point, second: Point) {
+    return Math.hypot(second.x - first.x, second.y - first.y);
+  }
+
+  function getMiddlePoint(first: Point, second: Point): Point {
+    return {
+      x: (first.x + second.x) / 2,
+      y: (first.y + second.y) / 2,
+    };
+  }
+
+  canvas.addEventListener("pointerdown", (event) => {
+    if (event.pointerType !== "touch") {
+      return;
+    }
+
+    canvas.setPointerCapture(event.pointerId);
+    const point = clientToCanvas(event.clientX, event.clientY);
+    activePointers.set(event.pointerId, point);
+
+    if (activePointers.size === 2) {
+      const [first, second] = [...activePointers.values()];
+
+      previousPinchDistance = getDistance(first, second);
+    } else {
+      previousPinchDistance = null;
+    }
   });
+
+  canvas.addEventListener("pointermove", (event) => {
+    if (event.pointerType !== "touch" || !activePointers.has(event.pointerId)) {
+      return;
+    }
+
+    const point = clientToCanvas(event.clientX, event.clientY);
+    activePointers.set(event.pointerId, point);
+
+    if (activePointers.size !== 2) {
+      return;
+    }
+
+    const [first, second] = [...activePointers.values()];
+    const currentDistance = getDistance(first, second);
+    const middlePoint = getMiddlePoint(first, second);
+
+    if (previousPinchDistance !== null && previousPinchDistance > 0) {
+      const multiplier = currentDistance / previousPinchDistance;
+
+      zoomAt(middlePoint.x, middlePoint.y, multiplier);
+    }
+
+    previousPinchDistance = currentDistance;
+  });
+
+  function removePointer(event: PointerEvent) {
+    activePointers.delete(event.pointerId);
+    previousPinchDistance = null;
+  }
+
+  canvas.addEventListener("pointerup", removePointer);
+  canvas.addEventListener("pointercancel", removePointer);
+
   resetButton.addEventListener("click", () => {
     resetCamera();
     scheduleRender();
@@ -256,3 +324,8 @@
 
   render();
 </script>
+<style>
+  #carpet-demo {
+    touch-action: none;
+  }
+</style>
