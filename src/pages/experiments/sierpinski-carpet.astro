@@ -1,6 +1,168 @@
 ---
 import DemoCarpet from "../../components/experiments/Sierpinski Carpet/DemoCarpet.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const centerCutoutCode = `function drawCenterCutout(
+  x: number,
+  y: number,
+  size: number,
+) {
+  const partSize = size / 3;
+  const centerX = x + partSize;
+  const centerY = y + partSize;
+
+  context.fillStyle = "#d9f56f";
+  context.fillRect(centerX, centerY, partSize, partSize);
+}`;
+
+const childSquaresCode = `const partSize = size / 3;
+
+for (let row = 0; row < 3; row++) {
+  for (let column = 0; column < 3; column++) {
+    if (row === 1 && column === 1) {
+      continue;
+    }
+
+    const childX = x + column * partSize;
+    const childY = y + row * partSize;
+  }
+}`;
+
+const recursiveCarpetCode = `function drawCarpet(
+  x: number,
+  y: number,
+  size: number,
+  depth: number,
+) {
+  drawCenterCutout(x, y, size);
+
+  if (depth <= 1) {
+    return;
+  }
+
+  const partSize = size / 3;
+
+  for (let row = 0; row < 3; row++) {
+    for (let column = 0; column < 3; column++) {
+      if (row === 1 && column === 1) {
+        continue;
+      }
+
+      const childX = x + column * partSize;
+      const childY = y + row * partSize;
+
+      drawCarpet(childX, childY, partSize, depth - 1);
+    }
+  }
+}`;
+
+const cameraCode = `type Camera = {
+  centerX: number;
+  centerY: number;
+  scale: number;
+};
+
+const camera: Camera = {
+  centerX: 0.5,
+  centerY: 0.5,
+  scale: 1,
+};`;
+
+const worldToScreenCode = `function worldToScreenX(worldX: number) {
+  return (
+    (worldX - camera.centerX) *
+      canvas.width *
+      camera.scale +
+    canvas.width / 2
+  );
+}
+
+function worldToScreenY(worldY: number) {
+  return (
+    (worldY - camera.centerY) *
+      canvas.height *
+      camera.scale +
+    canvas.height / 2
+  );
+}
+
+function worldToScreenWidth(worldSize: number) {
+  return worldSize * canvas.width * camera.scale;
+}
+
+function worldToScreenHeight(worldSize: number) {
+  return worldSize * canvas.height * camera.scale;
+}`;
+
+const screenToWorldCode = `function screenToWorldX(screenX: number) {
+  return (
+    (screenX - canvas.width / 2) /
+      (canvas.width * camera.scale) +
+    camera.centerX
+  );
+}
+
+function screenToWorldY(screenY: number) {
+  return (
+    (screenY - canvas.height / 2) /
+      (canvas.height * camera.scale) +
+    camera.centerY
+  );
+}`;
+
+const zoomAtCode = `function zoomAt(
+  screenX: number,
+  screenY: number,
+  multiplier: number,
+) {
+  const worldXBeforeZoom = screenToWorldX(screenX);
+  const worldYBeforeZoom = screenToWorldY(screenY);
+
+  camera.scale *= multiplier;
+  camera.scale = Math.max(
+    MIN_SCALE,
+    Math.min(camera.scale, MAX_SCALE),
+  );
+
+  const worldXAfterZoom = screenToWorldX(screenX);
+  const worldYAfterZoom = screenToWorldY(screenY);
+
+  camera.centerX += worldXBeforeZoom - worldXAfterZoom;
+  camera.centerY += worldYBeforeZoom - worldYAfterZoom;
+
+  constrainCamera();
+  scheduleRender();
+}`;
+const effectiveDepthCode = `const BASE_DEPTH = 5;
+const MAX_DEPTH = 24;
+
+function getEffectiveDepth(scale: number) {
+  const additionalLevels = Math.floor(
+    Math.log(scale) / Math.log(3),
+  );
+
+  return Math.min(
+    MAX_DEPTH,
+    BASE_DEPTH + additionalLevels,
+  );
+}`;
+
+const recursionOptimizationCode = `const isOutsideCanvas =
+  screenX + screenWidth <= 0 ||
+  screenY + screenHeight <= 0 ||
+  screenX >= canvas.width ||
+  screenY >= canvas.height;
+
+if (isOutsideCanvas) {
+  return;
+}
+
+const cutoutWidth = screenWidth / 3;
+const cutoutHeight = screenHeight / 3;
+
+if (cutoutWidth < 1 || cutoutHeight < 1) {
+  return;
+}`;
 ---
 
 <BaseLayout title="Serpinski carpet - Oblina Labs">
@@ -10,87 +172,464 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
         <p class="article-label">Вебграфіка</p>
         <h1>Килим Серпінського</h1>
         <p class="article-lead">
-          Як за допомогою рекурсії побудувати фрактал на Canvas
+          Як побудувати рекурсивний фрактал на Canvas і додати глибокий zoom
         </p>
         <div class="article-meta">
           <span>Авторка: Анастасія Саленко</span>
           <span aria-hidden="true">·</span>
-          <time datetime="2026-08-18">18 серпня 2026</time>
+          <time datetime="2026-08-18">25 серпня 2026</time>
         </div>
       </header>
+      <section>
+        <p>
+          Килим Серпінського — це фрактал, який виникає з одного простого
+          правила. Беремо квадрат, ділимо його на дев’ять однакових частин,
+          прибираємо центральну, а потім повторюємо ті самі дії для восьми
+          квадратів, що залишилися.
+        </p>
+
+        <p>
+          Після першого кроку ми бачимо лише один виріз. Але з кожним
+          повторенням усередині квадратів з’являються нові, дедалі менші отвори.
+          Так із простої операції поступово утворюється складний геометричний
+          візерунок.
+        </p>
+
+        <p>
+          У цій статті ми побудуємо Килим Серпінського на Canvas: почнемо з
+          одного центрального вирізу, знайдемо координати восьми дочірніх
+          квадратів і перетворимо повторення цього правила на рекурсію. Потім
+          додамо камеру та zoom, щоб наближати окремі частини фрактала й
+          автоматично відкривати нові рівні деталізації.
+        </p>
+      </section>
+      <section aria-labelledby="playground-title">
+        <h2 id="playground-title">Спробуйте самі</h2>
+
+        <p>
+          Наведіть курсор на частину фрактала, яку хочете роздивитися, і
+          прокрутіть колесо миші. Килим наближатиметься саме до точки під
+          курсором, а його ефективна глибина автоматично збільшуватиметься разом
+          із масштабом.
+        </p>
+
+        <p>
+          На мобільному пристрої використовуйте жест двома пальцями. Кнопка <strong
+            >Скинути вигляд</strong
+          > повертає камеру до початкового положення.
+        </p>
+
+        <div class="playground">
+          <DemoCarpet />
+        </div>
+
+        <p class="note">
+          Початкова глибина фрактала дорівнює 5, а під час наближення може
+          збільшуватися до 24 рівнів.
+        </p>
+      </section>
+      <section>
+        <h2>Від одного вирізу до восьми квадратів</h2>
+
+        <p>
+          Почнемо з одного великого квадрата. Щоб знайти його центральну
+          частину, ділимо сторону на три:
+        </p>
+
+        <pre class="code-block"><code>{centerCutoutCode}</code></pre>
+
+        <p>
+          Параметри <code>x</code> і <code>y</code> містять координати верхнього лівого
+          кута поточного квадрата, а <code>size</code> — довжину його сторони. Тому
+          сторона однієї частини дорівнює <code>size / 3</code>.
+        </p>
+
+        <p>
+          Центральний квадрат розташований на одну частину правіше й на одну
+          частину нижче від початкової точки. Отже, до <code>x</code> та <code
+            >y</code
+          > потрібно додати <code>partSize</code>.
+        </p>
+
+        <p>
+          Але для побудови фрактала недостатньо знайти лише центр. Нам також
+          потрібні координати восьми частин, які залишилися навколо нього.
+          Уявімо квадрат як сітку з трьох рядків і трьох колонок:
+        </p>
+
+        <pre class="code-block"><code>{childSquaresCode}</code></pre>
+
+        <p>
+          Зовнішній цикл проходить по рядках, а внутрішній — по колонках.
+          Координати кожної частини залежать від її положення в сітці: номер
+          колонки зміщує квадрат по горизонталі, а номер рядка — по вертикалі.
+        </p>
+
+        <p>
+          Комірка з індексами <code>row === 1</code> і <code>column === 1</code> розташована
+          в центрі. Вона вже є вирізом, тому пропускаємо її за допомогою <code
+            >continue</code
+          >. У результаті отримуємо координати восьми дочірніх квадратів.
+        </p>
+      </section>
+      <section>
+        <h2>Повторюємо правило за допомогою рекурсії</h2>
+
+        <p>
+          Тепер у нас є координати восьми дочірніх квадратів. Для кожного з них
+          потрібно виконати те саме правило: поділити на три частини, вирізати
+          центр і знайти наступні вісім квадратів.
+        </p>
+
+        <p>
+          Замість того щоб вручну повторювати однакові дії, функція <code
+            >drawCarpet()</code
+          > викликає саму себе з новими координатами та меншим розміром:
+        </p>
+
+        <pre class="code-block"><code>{recursiveCarpetCode}</code></pre>
+
+        <p>
+          Кожен рекурсивний виклик отримує власні значення <code>x</code>, <code
+            >y</code
+          > і <code>size</code>. Дочірній квадрат стає новим поточним квадратом,
+          а його сторона дорівнює третині сторони батьківського.
+        </p>
+
+        <p>
+          Параметр <code>depth</code> показує, скільки рівнів залишилося побудувати.
+          Під час переходу до дочірнього квадрата передаємо <code
+            >depth - 1</code
+          >. Коли значення доходить до <code>1</code>, центральний виріз уже
+          намальовано, але нові рекурсивні виклики більше не створюються.
+        </p>
+
+        <p>
+          За глибини <code>1</code> маємо один центральний виріз. За глибини <code
+            >2</code
+          > вирізи з’являються також у восьми дочірніх квадратах, а за глибини <code
+            >3</code
+          > правило повторюється ще раз. Так проста функція поступово будує весь фрактал.
+        </p>
+      </section>
+      <section>
+        <h2>Світові координати й камера</h2>
+
+        <p>
+          Поки фрактал повністю займав Canvas, його можна було малювати
+          безпосередньо в пікселях. Але для zoom цього недостатньо: потрібно
+          окремо зберігати сам фрактал і те, яку його частину зараз бачить
+          користувач.
+        </p>
+
+        <p>
+          Тому перенесемо килим у світову систему координат. У ній весь фрактал
+          завжди займає квадрат від <code>0</code> до <code>1</code>, а його
+          центр розташований у точці <code>(0.5, 0.5)</code>. Ці значення не
+          залежать від розміру Canvas або поточного масштабу.
+        </p>
+
+        <p>Стан видимої області зберігатимемо в об’єкті камери:</p>
+
+        <pre class="code-block"><code>{cameraCode}</code></pre>
+
+        <p>
+          <code>centerX</code> і <code>centerY</code> визначають світову точку, розташовану
+          в центрі Canvas. Значення <code>scale</code> визначає масштаб: за значення&nbsp;
+          <code>1</code> видно весь килим, а зі збільшенням масштабу — лише його частину.
+        </p>
+
+        <p>
+          Canvas не вміє працювати зі світовими координатами, тому перед
+          малюванням переводимо їх у пікселі:
+        </p>
+
+        <pre class="code-block"><code>{worldToScreenCode}</code></pre>
+
+        <p>
+          Спочатку від світової координати віднімаємо координату центра камери.
+          Так отримуємо відстань від потрібної точки до центра видимої області.
+          Потім переводимо цю відстань у пікселі, застосовуємо масштаб і додаємо
+          половину розміру Canvas.
+        </p>
+
+        <p>
+          Розміри квадратів переводяться простіше: світовий розмір множиться на
+          розмір Canvas і масштаб. Під час zoom координати самого фрактала не
+          змінюються — камера лише визначає, де і якого розміру він буде
+          намальований на екрані.
+        </p>
+      </section>
+      <section>
+        <h2>Zoom до точки під курсором</h2>
+
+        <p>
+          Якщо під час прокручування колеса змінювати лише <code
+            >camera.scale</code
+          >, фрактал завжди наближатиметься відносно центра Canvas. Точка під
+          курсором зміщуватиметься, тому керування здаватиметься неприродним.
+        </p>
+
+        <p>
+          Щоб зберегти вибрану точку на місці, потрібно вміти виконувати
+          зворотне перетворення: знаходити світову координату, яка відповідає
+          певному пікселю Canvas.
+        </p>
+
+        <pre class="code-block"><code>{screenToWorldCode}</code></pre>
+
+        <p>
+          Функції <code>screenToWorldX()</code> і <code>screenToWorldY()</code> є
+          зворотними до перетворення світових координат в екранні. Вони прибирають
+          зміщення до центра Canvas, ділять координату на масштаб і повертають зміщення
+          камери.
+        </p>
+
+        <p>Сам zoom виконується в кілька кроків:</p>
+
+        <pre class="code-block"><code>{zoomAtCode}</code></pre>
+
+        <ol>
+          <li>Знаходимо світову точку під курсором до зміни масштабу.</li>
+          <li>Збільшуємо або зменшуємо масштаб камери.</li>
+          <li>Знову знаходимо світову точку під тим самим пікселем.</li>
+          <li>
+            Пересуваємо центр камери на різницю між двома отриманими точками.
+          </li>
+        </ol>
+
+        <p>
+          Завдяки цьому обрана частина фрактала залишається під курсором. На
+          мобільному пристрої використовується той самий принцип, але точкою
+          zoom стає середина між двома пальцями, а множник масштабу визначається
+          зміною відстані між ними.
+        </p>
+      </section>
+      <section>
+        <h2>Динамічна глибина й оптимізація</h2>
+
+        <p>
+          За початкового масштабу п’яти рівнів достатньо: менші деталі майже не
+          відрізняються на Canvas. Але під час наближення вони стають помітними.
+          Якщо залишити глибину незмінною, збільшена частина фрактала
+          виглядатиме як суцільний квадрат.
+        </p>
+
+        <p>
+          На кожному рівні частини килима стають утричі меншими. Тому після
+          кожного збільшення масштабу приблизно втричі додаємо ще один рівень
+          деталізації:
+        </p>
+
+        <pre class="code-block"><code>{effectiveDepthCode}</code></pre>
+
+        <p>
+          За масштабу <code>1</code> ефективна глибина дорівнює <code>5</code>.
+          За масштабів <code>3</code>, <code>9</code> і <code>27</code> вона збільшується
+          до <code>6</code>, <code>7</code> і <code>8</code>. Значення не може
+          перевищити <code>24</code>.
+        </p>
+
+        <p>
+          Проте побудувати весь Килим Серпінського до 24 рівня неможливо: кожен
+          квадрат створює ще вісім дочірніх квадратів. Тому рекурсія
+          продовжується лише там, де її результат можна побачити.
+        </p>
+
+        <pre class="code-block"><code>{recursionOptimizationCode}</code></pre>
+
+        <p>
+          Якщо квадрат повністю розташований за межами Canvas, функція завершує
+          цю гілку рекурсії. Вона не малює квадрат і не переходить до його
+          дочірніх частин.
+        </p>
+
+        <p>
+          Рекурсія також зупиняється, коли наступний центральний виріз стає
+          меншим за один піксель. Подальші рівні вже не додадуть видимих
+          деталей, але вимагатимуть значно більше обчислень.
+        </p>
+
+        <p>
+          Події колеса та руху пальців можуть надходити швидше, ніж браузер
+          встигає перемальовувати екран. Тому оновлення планується через <code
+            >requestAnimationFrame()</code
+          >: протягом одного кадру програма виконує лише одне перемальовування з
+          найновішим станом камери.
+        </p>
+      </section>
+      <section>
+        <h2>Висновок</h2>
+
+        <p>
+          Килим Серпінського показав, як із простого правила може виникнути
+          складна графіка. Для побудови фрактала достатньо поділити квадрат на
+          дев’ять частин, пропустити центральну й повторити ті самі дії для
+          восьми інших квадратів. Рекурсія дозволила описати це повторення
+          однією функцією.
+        </p>
+
+        <p>
+          Найскладнішою частиною для мене виявилася не сама рекурсія, а zoom.
+          Щоб наближення відбувалося до точки під курсором, довелося розділити
+          світові й екранні координати, навчитися перетворювати їх в обидва боки
+          та змінювати положення камери після кожної зміни масштабу.
+        </p>
+
+        <p>
+          Також було неочевидно, що максимальна глибина <code>24</code> не означає,
+          що програма щоразу будує весь фрактал до цього рівня. Вона продовжує рекурсію
+          лише для видимих частин і зупиняється, коли деталі стають меншими за один
+          піксель.
+        </p>
+
+        <p>
+          У результаті один приклад поєднав роботу з Canvas, вкладеними
+          координатами, рекурсією, станом камери, масштабуванням і оптимізацією
+          рендеру. Ці самі принципи можна використати не лише для фракталів, а й
+          для карт, ігор, графічних редакторів та інших інтерактивних просторів.
+        </p>
+      </section>
     </article>
   </main>
-  <section>
-    <DemoCarpet />
-  </section>
+
+  <style>
+    .article-page {
+      width: 100%;
+      padding: clamp(24px, 6vw, 64px) 16px;
+      box-sizing: border-box;
+    }
+
+    .article {
+      width: min(100%, 1200px);
+      margin: 0 auto;
+    }
+
+    .article-header,
+    .article > section:not(:has(.playground)) {
+      width: min(100%, 1200px);
+      margin-inline: auto;
+    }
+
+    .article-header {
+      margin-bottom: clamp(40px, 7vw, 72px);
+    }
+
+    .article-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+
+      margin-top: 24px;
+
+      color: var(--color-muted, #5f5f5f);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .article-meta span,
+    .article-meta time {
+      font: inherit;
+    }
+
+    .article > section {
+      margin-bottom: clamp(56px, 8vw, 96px);
+    }
+
+    .article-label {
+      margin: 0 0 12px;
+
+      font-size: 0.875rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+
+      font-size: clamp(2.75rem, 8vw, 5.5rem);
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+    }
+
+    .article-lead {
+      max-width: 680px;
+      margin: 24px 0 0;
+
+      font-size: clamp(1.25rem, 3vw, 1.75rem);
+      line-height: 1.35;
+    }
+    h2 {
+      margin: 0 0 24px;
+
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      line-height: 1.15;
+    }
+
+    p {
+      margin: 0 0 20px;
+
+      font-size: 1.0625rem;
+      line-height: 1.75;
+    }
+
+    code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    p code {
+      padding: 0.12em 0.35em;
+
+      border: 1px solid currentColor;
+      border-radius: 0.3em;
+
+      font-size: 0.9em;
+    }
+
+    pre {
+      margin: 24px 0;
+      padding: 20px;
+      overflow-x: auto;
+
+      background: #171717;
+      border: 2px solid currentColor;
+      border-radius: 16px;
+      color: #f8f8f2;
+
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    pre code {
+      font: inherit;
+    }
+
+    .playground {
+      margin: 32px 0 20px;
+    }
+
+    .note {
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 600px) {
+      .article-page {
+        padding-inline: 12px;
+      }
+
+      .article-header,
+      .article > section:not(:has(.playground)) {
+        padding-inline: 4px;
+      }
+
+      pre {
+        padding: 16px;
+        border-radius: 12px;
+
+        font-size: 0.8rem;
+      }
+    }
+  </style>
 </BaseLayout>
-
-<style>
-  .article-page {
-    width: 100%;
-    padding: clamp(24px, 6vw, 64px) 16px;
-    box-sizing: border-box;
-  }
-
-  .article {
-    width: min(100%, 1200px);
-    margin: 0 auto;
-  }
-
-  .article-header,
-  .article > section:not(:has(.playground)) {
-    width: min(100%, 1200px);
-    margin-inline: auto;
-  }
-
-  .article-header {
-    margin-bottom: clamp(40px, 7vw, 72px);
-  }
-
-  .article-meta {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 8px;
-
-    margin-top: 24px;
-
-    color: var(--color-muted, #5f5f5f);
-    font-size: 0.95rem;
-    line-height: 1.5;
-  }
-
-  .article-meta span,
-  .article-meta time {
-    font: inherit;
-  }
-
-  .article > section {
-    margin-bottom: clamp(56px, 8vw, 96px);
-  }
-
-  .article-label {
-    margin: 0 0 12px;
-
-    font-size: 0.875rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-
-  h1 {
-    margin: 0;
-
-    font-size: clamp(2.75rem, 8vw, 5.5rem);
-    line-height: 0.95;
-    letter-spacing: -0.05em;
-  }
-
-  .article-lead {
-    max-width: 680px;
-    margin: 24px 0 0;
-
-    font-size: clamp(1.25rem, 3vw, 1.75rem);
-    line-height: 1.35;
-  }
-</style>
