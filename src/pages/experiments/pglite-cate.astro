@@ -3,7 +3,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import PGliteCatsDemo from "../../components/experiments/PGlite Cats/PGliteCatsDemo.tsx";
 ---
 
-<BaseLayout title="PG Lite Cate — Oblina Labs">
+<BaseLayout title="PG Lite Cats — Oblina Labs">
   <main class="article-page">
     <article class="article">
       <header class="article-header">
@@ -21,7 +21,7 @@ import PGliteCatsDemo from "../../components/experiments/PGlite Cats/PGliteCatsD
           <span aria-hidden="true">·</span>
         </div>
       </header>
-      <PGliteCatsDemo />
+      <PGliteCatsDemo client:only="react" />
     </article>
   </main>
 </BaseLayout>
