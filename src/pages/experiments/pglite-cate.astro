@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import PGliteCatsDemo from "../../components/experiments/PGlite Cats/PGliteCatsDemo.tsx";
+import SqlLab from "../../components/experiments/PGlite Cats/SqlLab.tsx";
 ---
 
 <BaseLayout title="PG Lite Cats — Oblina Labs">
@@ -22,6 +23,7 @@ import PGliteCatsDemo from "../../components/experiments/PGlite Cats/PGliteCatsD
         </div>
       </header>
       <PGliteCatsDemo client:only="react" />
+      <SqlLab client:only="react" />
     </article>
   </main>
 </BaseLayout>
