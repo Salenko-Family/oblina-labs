@@ -8,21 +8,26 @@ type SqlPlaygroundProps = {
 type QueryRow = Record<string, unknown>;
 
 const SqlPlayground = ({ db }: SqlPlaygroundProps) => {
-  const [query, setQuery] = useState("SELECT 2 + 2 AS result;");
+  const [query, setQuery] = useState("SELECT * FROM pets_raw;");
   const [results, setResults] = useState<QueryRow[]>([]);
+  const [columns, setColumns] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
-  const columns = results[0] ? Object.keys(results[0]) : [];
+  const [hasRun, setHasRun] = useState(false);
 
   async function runQuery() {
     setError(null);
     setResults([]);
+    setColumns([]);
     setLoading(true);
+    setHasRun(false);
 
     try {
       const ret = await db.query<QueryRow>(query);
+
       setResults(ret.rows);
+      setColumns(ret.fields.map((field) => field.name));
+      setHasRun(true);
     } catch (error) {
       if (error instanceof Error) {
         setError(error.message);
@@ -56,7 +61,9 @@ const SqlPlayground = ({ db }: SqlPlaygroundProps) => {
 
       {error ? <p>{error}</p> : null}
 
-      {results.length > 0 ? (
+      {hasRun && !error ? <p>{results.length} rows</p> : null}
+
+      {columns.length > 0 ? (
         <table>
           <thead>
             <tr>
