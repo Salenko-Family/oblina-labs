@@ -1,6 +1,5 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import PGliteCatsDemo from "../../components/experiments/PGlite Cats/PGliteCatsDemo.tsx";
 import SqlLab from "../../components/experiments/PGlite Cats/SqlLab.tsx";
 ---
 
@@ -22,7 +21,6 @@ import SqlLab from "../../components/experiments/PGlite Cats/SqlLab.tsx";
           <span aria-hidden="true">·</span>
         </div>
       </header>
-      <PGliteCatsDemo client:only="react" />
       <SqlLab client:only="react" />
     </article>
   </main>
