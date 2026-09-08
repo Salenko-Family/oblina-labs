@@ -1,6 +1,86 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import SqlPlayground from "../../components/experiments/PGlite Cats/SqlPlayground";
+
+const loadCsvCode = `const response = await fetch(CSV_URL);
+
+if (!response.ok) {
+  throw new Error(\`Failed to load CSV: \${response.status}\`);
+}
+
+const csvBlob = await response.blob();`;
+
+const createRawTableCode = `CREATE TABLE pets_raw (
+  license_issue_date_raw TEXT,
+  license_number TEXT,
+  animal_name TEXT,
+  species TEXT,
+  primary_breed TEXT,
+  secondary_breed TEXT,
+  zip_code TEXT
+);`;
+
+const importCsvCode = `await db.query(
+  \`
+    COPY pets_raw (
+      license_issue_date_raw,
+      license_number,
+      animal_name,
+      species,
+      primary_breed,
+      secondary_breed,
+      zip_code
+    )
+    FROM '/dev/blob'
+    WITH (
+      FORMAT csv,
+      HEADER true
+    );
+  \`,
+  [],
+  {
+    blob: csvBlob,
+  },
+);`;
+
+const createPetsTableCode = `CREATE TABLE pets (
+  license_issue_date DATE,
+  license_number TEXT,
+  animal_name TEXT,
+  species TEXT,
+  primary_breed TEXT,
+  secondary_breed TEXT,
+  zip_code TEXT
+);`;
+
+const transformPetsCode = `INSERT INTO pets (
+  license_issue_date,
+  license_number,
+  animal_name,
+  species,
+  primary_breed,
+  secondary_breed,
+  zip_code
+)
+SELECT
+  TO_DATE(license_issue_date_raw, 'Month DD, YYYY'),
+  license_number,
+  animal_name,
+  species,
+  primary_breed,
+  secondary_breed,
+  zip_code
+FROM pets_raw;`;
+
+const schemaQueryCode = `SELECT
+  table_name,
+  column_name,
+  data_type,
+  is_nullable,
+  ordinal_position
+FROM information_schema.columns
+WHERE table_schema = 'public'
+ORDER BY table_name, ordinal_position;`;
 ---
 
 <BaseLayout title="PG Lite Cats — Oblina Labs">
@@ -8,20 +88,211 @@ import SqlPlayground from "../../components/experiments/PGlite Cats/SqlPlaygroun
     <article class="article">
       <header class="article-header">
         <p class="article-label">SQL</p>
-
         <h1>SQL для котиків: перша таблиця з PGlite</h1>
-
         <p class="article-lead">
           Справжній PostgreSQL прямо у браузері — без сервера і без окремої бази
           даних.
         </p>
-
         <div class="article-meta">
           <span>Авторка: Анастасія Саленко</span>
           <span aria-hidden="true">·</span>
         </div>
       </header>
-      <SqlPlayground client:only="react" />
+      <section class="dataset">
+        <h2>З чим будемо працювати</h2>
+        <p>
+          Для прикладу використаємо відкриті дані Seattle Pet Licenses —
+          інформацію про ліцензії домашніх тварин у Сіетлі.
+        </p>
+        <p>
+          Дані завантажимо в таблицю <code>pets</code>. Ось її колонки та
+          приклади записів:
+        </p>
+        <div class="data-preview">
+          <div class="data-preview-header">
+            <span class="data-preview-label">pets</span>
+            <span class="data-preview-meta">7 columns</span>
+          </div>
+          <div class="data-preview-scroll">
+            <table class="data-preview-table">
+              <thead>
+                <tr>
+                  <th>license_issue_date</th>
+                  <th>license_number</th>
+                  <th>animal_name</th>
+                  <th>species</th>
+                  <th>primary_breed</th>
+                  <th>secondary_breed</th>
+                  <th>zip_code</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>"2023-12-17T00:00:00.000Z"</td>
+                  <td>8051197</td>
+                  <td>Loki</td>
+                  <td>Cat</td>
+                  <td>Domestic Shorthair</td>
+                  <td>Mix</td>
+                  <td>98122</td>
+                </tr>
+                <tr>
+                  <td>"2022-10-31T00:00:00.000Z"</td>
+                  <td>8012077</td>
+                  <td>Cappuccino</td>
+                  <td>Dog</td>
+                  <td>Terrier</td>
+                  <td>Mix</td>
+                  <td>98053</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+      <section class="playground-intro">
+        <h2>Які імена котів найпопулярніші?</h2>
+        <p>
+          База вже працює прямо у браузері. Запустимо SQL-запит і подивимося,
+          які котячі імена зустрічаються найчастіше.
+        </p>
+        <SqlPlayground client:only="react" />
+      </section>
+      <section>
+        <h2>PostgreSQL прямо у браузері</h2>
+        <p>
+          Зазвичай PostgreSQL працює окремо від браузера: застосунок надсилає
+          запит на сервер, а сервер звертається до бази даних. У цьому прикладі
+          сервера для виконання SQL немає.
+        </p>
+        <p>
+          PGlite дозволяє запустити PostgreSQL безпосередньо у браузері за
+          допомогою WebAssembly. Тому SQL-запит із Playground виконується
+          локально — на пристрої користувача.
+        </p>
+      </section>
+      <section>
+        <h2>Як дані потрапляють у PostgreSQL</h2>
+        <p>
+          PGlite запускає базу даних, але спочатку вона порожня. Дані для цього
+          прикладу зберігаються у CSV-файлі Seattle Pet Licenses, тому його
+          потрібно завантажити у браузер і перенести в PostgreSQL.
+        </p>
+        <p>Шлях даних виглядає так:</p>
+        <pre><code>Seattle Pet Licenses CSV
+              ↓
+            fetch()
+              ↓
+           pets_raw
+              ↓
+             pets
+              ↓
+          SQL-запити</code></pre>
+        <h3>1. Завантажуємо CSV</h3>
+        <p>
+          Спочатку браузер завантажує CSV-файл за допомогою <code>fetch()</code
+          >. Отриману відповідь перетворюємо на <code>Blob</code>, який потім
+          передамо PGlite.
+        </p>
+        <pre class="code-block"><code>{loadCsvCode}</code></pre>
+        <h3>2. Створюємо таблицю для сирих даних</h3>
+        <p>
+          Дані з CSV спочатку завантажимо у проміжну таблицю <code
+            >pets_raw</code
+          >. На цьому етапі всі колонки мають тип <code>TEXT</code> — ми зберігаємо
+          сирі значення без перетворення типів.
+        </p>
+        <pre class="code-block"><code>{createRawTableCode}</code></pre>
+        <p>
+          Наприклад, дата в CSV приходить як текст на кшталт <code
+            >December 17, 2023</code
+          >. У <code>pets_raw</code> вона потрапляє без змін у <code
+            >license_issue_date_raw</code
+          >, а перетворимо її на справжній PostgreSQL-тип <code>DATE</code> пізніше.
+        </p>
+        <h3>3. Імпортуємо CSV</h3>
+        <p>
+          Тепер передаємо завантажений <code>Blob</code> у PGlite і використовуємо
+          PostgreSQL-команду <code>COPY</code>, щоб імпортувати CSV у <code
+            >pets_raw</code
+          >.
+        </p>
+        <pre class="code-block"><code>{importCsvCode}</code></pre>
+        <p>
+          Шлях <code>/dev/blob</code> тут не означає реальний файл на комп'ютері.
+          PGlite використовує його як спеціальний шлях до <code>Blob</code>,
+          який ми передали в параметрі <code>blob</code>.
+        </p>
+        <p>
+          <code>FORMAT csv</code> вказує PostgreSQL формат даних, а <code
+            >HEADER true</code
+          > повідомляє, що перший рядок CSV містить назви колонок і його не потрібно
+          імпортувати як звичайний запис.
+        </p>
+        <h3>4. Створюємо таблицю <code>pets</code></h3>
+        <p>
+          <code>pets_raw</code> зберігає дані в тому вигляді, у якому вони прийшли
+          з CSV. Для роботи з ними створимо окрему таблицю <code>pets</code> з потрібними
+          типами колонок.
+        </p>
+        <pre class="code-block"><code>{createPetsTableCode}</code></pre>
+        <p>
+          Більшість значень залишаються текстовими, але <code
+            >license_issue_date</code
+          > уже має тип <code>DATE</code>. Тепер PostgreSQL сприйматиме це
+          значення саме як дату, а не як звичайний текст.
+        </p>
+        <h3>5. Переносимо дані в <code>pets</code></h3>
+        <p>
+          Таблиця <code>pets</code> створена, але поки порожня. Заповнимо її даними
+          з <code>pets_raw</code> за допомогою <code
+            >INSERT INTO ... SELECT</code
+          >.
+        </p>
+        <pre class="code-block"><code>{transformPetsCode}</code></pre>
+        <p>
+          Майже всі значення можна перенести без змін. Виняток — <code
+            >license_issue_date_raw</code
+          >: у сирій таблиці дата зберігається як текст, тому <code
+            >TO_DATE()</code
+          > перетворює її на PostgreSQL-тип
+          <code>DATE</code>.
+        </p>
+        <p>
+          Тепер <code>pets</code> готова до SQL-запитів. Саме з цією таблицею працює
+          Playground на початку статті.
+        </p>
+      </section>
+      <section>
+        <h2>Дивимося на структуру бази</h2>
+        <p>
+          PostgreSQL зберігає інформацію не тільки про наші дані, а й про
+          структуру самої бази. Подивитися, які таблиці та колонки були
+          створені, можна через <code>information_schema</code>.
+        </p>
+        <pre class="code-block"><code>{schemaQueryCode}</code></pre>
+        <p>
+          <code>information_schema</code> — це набір системних представлень PostgreSQL.
+          До них можна звертатися звичайними SQL-запитами так само, як до наших таблиць.
+        </p>
+        <p>
+          Скопіюйте цей запит у Playground вище — у результаті будуть видні
+          колонки таблиць <code>pets_raw</code> і <code>pets</code>.
+        </p>
+      </section>
+      <section>
+        <h2>Що в результаті</h2>
+        <p>
+          Ми запустили PostgreSQL прямо у браузері, завантажили відкриті дані з
+          CSV, підготували таблицю <code>pets</code> і виконали справжні SQL-запити
+          — без окремого сервера та зовнішньої бази даних.
+        </p>
+        <p>
+          PGlite робить такий підхід особливо зручним для інтерактивних
+          прикладів: дані й база знаходяться поруч із кодом статті, а читач може
+          одразу змінювати SQL і бачити результат.
+        </p>
+      </section>
     </article>
   </main>
 </BaseLayout>
@@ -36,13 +307,6 @@ import SqlPlayground from "../../components/experiments/PGlite Cats/SqlPlaygroun
     width: min(100%, 1200px);
     margin: 0 auto;
   }
-
-  .article-header,
-  .article > section:not(:has(.playground)) {
-    width: min(100%, 1200px);
-    margin-inline: auto;
-  }
-
   .article-header {
     margin-bottom: clamp(40px, 7vw, 72px);
   }
@@ -108,5 +372,118 @@ import SqlPlayground from "../../components/experiments/PGlite Cats/SqlPlaygroun
 
   p {
     margin: 0 0 20px;
+  }
+
+  .dataset {
+    margin-bottom: clamp(56px, 8vw, 96px);
+  }
+
+  .dataset > p {
+    max-width: 760px;
+  }
+
+  .data-preview {
+    margin-top: 32px;
+    overflow: hidden;
+    background-color: #fffdf5;
+    border: 2px solid #171717;
+    border-radius: 14px;
+  }
+
+  .data-preview-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 44px;
+    padding: 0 16px;
+    background-color: #f4f0e5;
+    border-bottom: 2px solid #171717;
+  }
+
+  .data-preview-label,
+  .data-preview-meta {
+    font-family: monospace;
+  }
+
+  .data-preview-label {
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .data-preview-meta {
+    color: #666;
+    font-size: 12px;
+  }
+
+  .data-preview-scroll {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .data-preview-table {
+    width: 100%;
+    min-width: 1000px;
+    border-collapse: collapse;
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .data-preview-table th,
+  .data-preview-table td {
+    padding: 10px 14px;
+    border-right: 1px solid #171717;
+    border-bottom: 1px solid #171717;
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  .data-preview-table th {
+    background-color: #d9ff66;
+    font-weight: 700;
+  }
+
+  .data-preview-table th:last-child,
+  .data-preview-table td:last-child {
+    border-right: 0;
+  }
+
+  .data-preview-table tbody tr:last-child td {
+    border-bottom: 0;
+  }
+
+  .playground-intro {
+    margin-bottom: 32px !important;
+  }
+
+  .playground-intro > p {
+    max-width: 760px;
+  }
+
+  code {
+    padding: 2px 6px;
+    background-color: #f4f0e5;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.95em;
+  }
+
+  pre {
+    margin: 28px 0 32px;
+    padding: 24px 28px;
+    overflow-x: auto;
+    background-color: #171717;
+    border-radius: 16px;
+  }
+
+  pre code {
+    padding: 0;
+    color: #fffdf5;
+    background: none;
+    border-radius: 0;
+    font-family: monospace;
+    font-size: 0.95rem;
+    line-height: 1.65;
   }
 </style>
