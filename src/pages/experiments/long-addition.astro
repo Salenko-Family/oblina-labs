@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import AdditionVisualizer from "../../components/experiments/Addition/AdditionVisualizer";
+import AuthorLink from "../../components/AuthorLink.astro";
 
 const maxSafeIntegerCode = `Number.MAX_SAFE_INTEGER;
 // 9007199254740991`;
@@ -61,7 +62,9 @@ const additionStepCode = `type AdditionStep = {
           Як точно додавати числа, більші за можливості JavaScript
         </p>
         <div class="article-meta">
-          <span>Авторка: Анастасія Саленко</span>
+          <span>
+            Авторка: <AuthorLink id="anastasiia-salenko" />
+          </span>
           <span aria-hidden="true">·</span>
           <time datetime="2026-08-12">12 серпня 2026</time>
         </div>

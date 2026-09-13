@@ -1,4 +1,5 @@
 ---
+import AuthorLink from "../../components/AuthorLink.astro";
 import DemoCarpet from "../../components/experiments/Sierpinski Carpet/DemoCarpet.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 
@@ -175,7 +176,9 @@ if (cutoutWidth < 1 || cutoutHeight < 1) {
           Як побудувати рекурсивний фрактал на Canvas і додати глибокий zoom
         </p>
         <div class="article-meta">
-          <span>Авторка: Анастасія Саленко</span>
+          <span>
+            Авторка: <AuthorLink id="anastasiia-salenko" />
+          </span>
           <span aria-hidden="true">·</span>
           <time datetime="2026-08-18">25 серпня 2026</time>
         </div>

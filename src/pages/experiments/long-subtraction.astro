@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import SubtractionVisualizer from "../../components/experiments/Subtraction/SubtractionVisualizer";
+import AuthorLink from "../../components/AuthorLink.astro";
 
 const maxSafeIntegerCode = `Number.MAX_SAFE_INTEGER;
 // 9007199254740991`;
@@ -78,7 +79,9 @@ const subtractionStepCode = `type SubtractionStep {
         </p>
 
         <div class="article-meta">
-          <span>Авторка: Анастасія Саленко</span>
+          <span>
+            Авторка: <AuthorLink id="anastasiia-salenko" />
+          </span>
           <span aria-hidden="true">·</span>
           <time datetime="2026-08-14">14 серпня 2026</time>
         </div>

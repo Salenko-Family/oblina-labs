@@ -1,10 +1,9 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import Header from "../components/Header.astro";
 import ProjectCard from "../components/ProjectCard.astro";
 import ExperimentCard from "../components/ExperimentCard.astro";
 import LearningCard from "../components/LearningCard.astro";
-import Footer from "../components/Footer.astro";
+import { experiments } from "../data/experiments";
 
 const currentTime = new Date().toLocaleTimeString("uk-UA", {
   timeZone: "Europe/Kyiv",
@@ -67,41 +66,17 @@ const projects = [
     <section id="experiments">
       <h2>Експерименти</h2>
       <div>
-        <ExperimentCard
-          title="Довге додавання"
-          description="Інтерактивне пояснення алгоритму додавання великих чисел у стовпчик."
-          status="Опубліковано"
-          publishedAt="12 серпня 2026"
-          href="/experiments/long-addition"
-        />
-        <ExperimentCard
-          title="Довге віднімання"
-          description="Інтерактивне пояснення алгоритму віднімання великих чисел у стовпчик."
-          status="Опубліковано"
-          publishedAt="14 серпня 2026"
-          href="/experiments/long-subtraction"
-        />
-        <ExperimentCard
-          title="Canvas та 2D графіка"
-          description="Інтерактивне знайомство з Canvas, 2D-графікою та створенням анімації."
-          status="Опубліковано"
-          publishedAt="18 серпня 2026"
-          href="/experiments/canvas-2d-graphics"
-        />
-        <ExperimentCard
-          title="Килим Серпінського"
-          description="Інтерактивна побудова Килима Серпінського за допомогою рекурсії."
-          status="Опубліковано"
-          publishedAt="25 серпня 2026"
-          href="experiments/sierpinski-carpet"
-        />
-        <ExperimentCard
-          title="PG Lite Cate"
-          description="Інтерактивне пояснення алгоритму Cate для PG Lite."
-          status="Опубліковано"
-          publishedAt="08 вересня 2026"
-          href="experiments/pglite-cate"
-        />
+        {
+          experiments.map((experiment) => (
+            <ExperimentCard
+              title={experiment.title}
+              description={experiment.description}
+              status={experiment.status}
+              publishedAt={experiment.publishedAt}
+              href={experiment.href}
+            />
+          ))
+        }
       </div>
     </section>
     <section id="learn">

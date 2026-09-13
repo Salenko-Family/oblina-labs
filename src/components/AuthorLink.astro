@@ -1,0 +1,26 @@
+---
+import { authors, type AuthorId } from "../data/authors";
+
+interface Props {
+  id: AuthorId;
+}
+
+const { id } = Astro.props;
+const author = authors[id];
+---
+
+<a class="author-link" href={`/authors#${author.id}`}>
+  {author.name}
+</a>
+
+<style>
+  .author-link {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .author-link:hover {
+    text-decoration-thickness: 2px;
+  }
+</style>

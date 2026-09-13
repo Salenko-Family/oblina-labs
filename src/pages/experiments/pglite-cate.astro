@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import SqlPlayground from "../../components/experiments/PGlite Cats/SqlPlayground";
+import AuthorLink from "../../components/AuthorLink.astro";
 
 const loadCsvCode = `const response = await fetch(CSV_URL);
 
@@ -94,7 +95,9 @@ ORDER BY table_name, ordinal_position;`;
           даних.
         </p>
         <div class="article-meta">
-          <span>Авторка: Анастасія Саленко</span>
+          <span>
+            Авторка: <AuthorLink id="anastasiia-salenko" />
+          </span>
           <span aria-hidden="true">·</span>
           <time datetime="2026-09-08">08 вересня 2026</time>
         </div>

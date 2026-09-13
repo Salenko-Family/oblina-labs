@@ -1,6 +1,7 @@
 ---
 import DemoCanvas from "../../components/experiments/Canvas 2D graphics/DemoCanvas.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import AuthorLink from "../../components/AuthorLink.astro";
 
 const canvasElementCode = `<canvas id="canvas-demo" width="400" height="300"></canvas>`;
 const canvasContextCode = `const canvas = document.getElementById("canvas-demo");
@@ -114,7 +115,9 @@ const drawPointCode = `function drawPoint(
           Як програмно малювати фігури та створювати анімацію у браузері
         </p>
         <div class="article-meta">
-          <span>Авторка: Анастасія Саленко</span>
+          <span>
+            Авторка: <AuthorLink id="anastasiia-salenko" />
+          </span>
           <span aria-hidden="true">·</span>
           <time datetime="2026-08-18">18 серпня 2026</time>
         </div>
