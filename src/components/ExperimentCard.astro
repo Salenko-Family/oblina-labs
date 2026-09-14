@@ -2,7 +2,6 @@
 interface Props {
   title: string;
   description: string;
-  status: string;
   href?: string;
   publishedAt?: string;
   preview?: {
@@ -11,7 +10,7 @@ interface Props {
   };
 }
 
-const { title, description, status, href, publishedAt, preview } = Astro.props;
+const { title, description, href, publishedAt, preview } = Astro.props;
 
 const Tag = href ? "a" : "article";
 ---
@@ -37,16 +36,63 @@ const Tag = href ? "a" : "article";
     preview && (
       <div class="experiment-preview">
         <img
+          class="experiment-preview-image"
           src={preview.image}
           alt={`Превʼю експерименту «${title}»`}
           loading="lazy"
         />
+
+        <video
+          class="experiment-preview-video"
+          src={preview.video}
+          muted
+          loop
+          playsinline
+          preload="metadata"
+        />
       </div>
     )
   }
-
-  <!-- <p class="experiment-status">{status}</p> -->
 </Tag>
+
+<script>
+  const cards = document.querySelectorAll(".experiment-card");
+
+  function stopAllPreviews() {
+    cards.forEach((card) => {
+      card.classList.remove("is-playing");
+
+      const video = card.querySelector(".experiment-preview-video");
+
+      if (video instanceof HTMLVideoElement) {
+        video.pause();
+        video.currentTime = 0;
+      }
+    });
+  }
+
+  cards.forEach((card) => {
+    const video = card.querySelector(".experiment-preview-video");
+
+    if (!(video instanceof HTMLVideoElement)) {
+      return;
+    }
+
+    card.addEventListener("mouseenter", () => {
+      stopAllPreviews();
+
+      card.classList.add("is-playing");
+      video.play();
+    });
+
+    card.addEventListener("mouseleave", () => {
+      card.classList.remove("is-playing");
+
+      video.pause();
+      video.currentTime = 0;
+    });
+  });
+</script>
 
 <style>
   .experiment-card {
@@ -102,6 +148,8 @@ const Tag = href ? "a" : "article";
   }
 
   .experiment-preview {
+    position: relative;
+
     width: 220px;
     aspect-ratio: 1;
     flex-shrink: 0;
@@ -112,26 +160,28 @@ const Tag = href ? "a" : "article";
     border-radius: 16px;
   }
 
-  .experiment-preview img {
+  .experiment-preview-image,
+  .experiment-preview-video {
+    position: absolute;
+    inset: 0;
+
     width: 100%;
     height: 100%;
 
     display: block;
-
     object-fit: cover;
   }
 
-  .experiment-status {
-    flex-shrink: 0;
+  .experiment-preview-video {
+    opacity: 0;
+  }
 
-    margin: 0;
-    padding: 7px 14px;
+  .experiment-card.is-playing .experiment-preview-image {
+    opacity: 0;
+  }
 
-    border: 1px solid currentColor;
-    border-radius: 999px;
-
-    font-size: 13px;
-    font-weight: 700;
+  .experiment-card.is-playing .experiment-preview-video {
+    opacity: 1;
   }
 
   @media (max-width: 900px) {
