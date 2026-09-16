@@ -46,7 +46,6 @@ const Tag = href ? "a" : "article";
           class="experiment-preview-video"
           src={preview.video}
           muted
-          loop
           playsinline
           preload="metadata"
         />
@@ -58,38 +57,137 @@ const Tag = href ? "a" : "article";
 <script>
   const cards = document.querySelectorAll(".experiment-card");
 
-  function stopAllPreviews() {
+  const visibleCards = new Set<Element>();
+
+  let currentIndex = 0;
+  let hoveredCard: Element | null = null;
+
+  const getVisibleCards = () => {
+    const result: Element[] = [];
+
     cards.forEach((card) => {
-      card.classList.remove("is-playing");
-
-      const video = card.querySelector(".experiment-preview-video");
-
-      if (video instanceof HTMLVideoElement) {
-        video.pause();
-        video.currentTime = 0;
+      if (visibleCards.has(card)) {
+        result.push(card);
       }
     });
-  }
+
+    return result;
+  };
+
+  const getVideo = (card: Element) => {
+    return card.querySelector(".experiment-preview-video");
+  };
+
+  const stopCard = (card: Element) => {
+    const video = getVideo(card);
+
+    if (video instanceof HTMLVideoElement) {
+      video.pause();
+      video.currentTime = 0;
+    }
+
+    card.classList.remove("is-playing");
+  };
+
+  const playCard = (card: Element) => {
+    const video = getVideo(card);
+
+    if (video instanceof HTMLVideoElement) {
+      card.classList.add("is-playing");
+      video.play();
+    }
+  };
+
+  const stopAllCards = () => {
+    cards.forEach((card) => {
+      stopCard(card);
+    });
+  };
+
+  const playCurrentCard = () => {
+    if (hoveredCard) {
+      return;
+    }
+
+    const visibleList = getVisibleCards();
+
+    if (visibleList.length === 0) {
+      stopAllCards();
+      currentIndex = 0;
+      return;
+    }
+
+    if (currentIndex >= visibleList.length) {
+      currentIndex = 0;
+    }
+
+    const currentCard = visibleList[currentIndex];
+
+    stopAllCards();
+    playCard(currentCard);
+  };
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          visibleCards.add(entry.target);
+        } else {
+          visibleCards.delete(entry.target);
+        }
+      });
+
+      if (hoveredCard && !visibleCards.has(hoveredCard)) {
+        hoveredCard = null;
+      }
+
+      if (!hoveredCard) {
+        playCurrentCard();
+      }
+    },
+    {
+      threshold: 0.35,
+    },
+  );
 
   cards.forEach((card) => {
-    const video = card.querySelector(".experiment-preview-video");
+    observer.observe(card);
+
+    const video = getVideo(card);
 
     if (!(video instanceof HTMLVideoElement)) {
       return;
     }
 
-    card.addEventListener("mouseenter", () => {
-      stopAllPreviews();
+    video.addEventListener("ended", () => {
+      if (hoveredCard === card) {
+        video.currentTime = 0;
+        video.play();
+        return;
+      }
 
-      card.classList.add("is-playing");
-      video.play();
+      if (hoveredCard) {
+        return;
+      }
+
+      currentIndex += 1;
+      playCurrentCard();
+    });
+
+    card.addEventListener("mouseenter", () => {
+      hoveredCard = card;
+
+      stopAllCards();
+      playCard(card);
     });
 
     card.addEventListener("mouseleave", () => {
-      card.classList.remove("is-playing");
+      hoveredCard = null;
 
-      video.pause();
-      video.currentTime = 0;
+      stopCard(card);
+
+      currentIndex = 0;
+      playCurrentCard();
     });
   });
 </script>
