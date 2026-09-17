@@ -1,0 +1,309 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { projects } from "../../data/projects";
+import { authors } from "../../data/authors";
+
+const project = projects.find((project) => project.slug === "misolla-music");
+
+if (!project) {
+  throw new Error("Project not found");
+}
+
+const projectAuthors = project.authors.map((id) => authors[id]);
+---
+
+<BaseLayout title={`${project.title} — Oblina Labs`}>
+  <main class="project-page">
+    <header class="project-header">
+      <p class="project-label">PROJECT · {project.type}</p>
+      <h1>{project.title}</h1>
+      <p class="project-lead">
+        Вебплатформа для музичної освіти, що поєднує навчальні матеріали,
+        інтерактивні вправи та роботу з домашніми завданнями.
+      </p>
+      <div class="project-meta">
+        <span>Автори:</span>
+        <div class="project-authors">
+          {
+            projectAuthors.map((author) => (
+              <a href={`/authors#${author.id}`}>{author.name}</a>
+            ))
+          }
+        </div>
+      </div>
+      <div class="project-actions">
+        {
+          project.externalUrl && (
+            <a
+              class="project-button project-button-primary"
+              href={project.externalUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Відкрити лендинг ↗
+            </a>
+          )
+        }
+        {
+          project.githubUrl && (
+            <a
+              class="project-button"
+              href={project.githubUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
+              GitHub ↗
+            </a>
+          )
+        }
+      </div>
+    </header>
+    <div class="project-image-wrapper">
+      <img
+        class="project-image"
+        src={project.image}
+        alt={`Проєкт «${project.title}»`}
+      />
+    </div>
+    <section class="project-section">
+      <h2>Про продукт</h2>
+      <p>
+        Misolla Music — платформа для музичної освіти, над якою ми працювали як
+        над повноцінним вебзастосунком. Її мета — перенести частину навчального
+        процесу в цифрове середовище та дати викладачам і учням інструменти для
+        роботи з музичними матеріалами, вправами й домашніми завданнями.
+      </p>
+      <p>
+        Проєкт розвивався як продукт, а не як окремий навчальний експеримент: ми
+        працювали одночасно над інтерфейсом, серверною частиною, збереженням
+        даних, авторизацією та інфраструктурою.
+      </p>
+      <p>
+        Публічний лендинг показує концепцію Misolla Music, а тут ми
+        зосереджуємося на самому застосунку та його технічній реалізації.
+      </p>
+    </section>
+    <section class="project-section">
+      <h2>Що ми створили</h2>
+      <ul class="features">
+        <li>Інтерактивні навчальні вправи</li>
+        <li>Робота з домашніми завданнями</li>
+        <li>Інтерфейси для навчального контенту</li>
+        <li>Збереження та обробка даних користувачів</li>
+        <li>Авторизація та робота з обліковими записами</li>
+        <li>Фонові задачі та асинхронна обробка</li>
+      </ul>
+    </section>
+    <section class="project-section">
+      <h2>Технології</h2>
+      <ul class="technologies">
+        <li>React</li>
+        <li>TypeScript</li>
+        <li>Node.js</li>
+        <li>Express</li>
+        <li>GraphQL</li>
+        <li>Apollo Server</li>
+        <li>MongoDB</li>
+        <li>Mongoose</li>
+        <li>Redis</li>
+        <li>BullMQ</li>
+        <li>SuperTokens</li>
+        <li>Zod</li>
+        <li>Docker</li>
+        <li>GitHub Actions</li>
+      </ul>
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  .project-page {
+    width: min(1200px, calc(100% - 48px));
+    margin: 0 auto;
+    padding: 80px 0 120px;
+  }
+
+  .project-header {
+    max-width: 950px;
+    margin-bottom: 56px;
+  }
+
+  .project-label {
+    margin: 0 0 20px;
+
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .project-header h1 {
+    margin: 0;
+
+    font-size: clamp(64px, 10vw, 120px);
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+  }
+
+  .project-lead {
+    max-width: 760px;
+    margin: 32px 0 0;
+
+    font-size: 22px;
+    line-height: 1.5;
+  }
+
+  .project-meta {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+
+    margin-top: 24px;
+
+    font-size: 15px;
+  }
+
+  .project-authors {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+  }
+
+  .project-authors a {
+    color: inherit;
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .project-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+
+    margin-top: 32px;
+  }
+
+  .project-button {
+    padding: 14px 24px;
+
+    color: var(--color-text);
+    font-size: 16px;
+    font-weight: 700;
+    text-decoration: none;
+
+    border: 2px solid var(--color-text);
+    border-radius: 999px;
+  }
+
+  .project-button-primary {
+    background: var(--color-lime);
+  }
+
+  .project-image-wrapper {
+    display: flex;
+    justify-content: center;
+  }
+
+  .project-image {
+    width: min(100%, 760px);
+    display: block;
+
+    border: 2px solid var(--color-text);
+    border-radius: 24px;
+  }
+
+  .project-section {
+    max-width: 760px;
+    margin: 80px auto 0;
+  }
+
+  .project-section h2 {
+    margin: 0 0 24px;
+
+    font-size: clamp(36px, 5vw, 56px);
+    line-height: 1;
+    letter-spacing: -0.04em;
+  }
+
+  .project-section p {
+    margin: 0 0 20px;
+
+    font-size: 18px;
+    line-height: 1.65;
+  }
+
+  .features {
+    margin: 0;
+    padding: 0;
+
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+
+    list-style: none;
+  }
+
+  .features li {
+    padding: 18px;
+
+    border: 1px solid var(--color-text);
+    border-radius: 12px;
+
+    font-size: 17px;
+    line-height: 1.4;
+  }
+
+  .technologies {
+    margin: 0;
+    padding: 0;
+
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+
+    list-style: none;
+  }
+
+  .technologies li {
+    padding: 8px 14px;
+
+    border: 1px solid var(--color-text);
+    border-radius: 999px;
+
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  @media (max-width: 600px) {
+    .project-page {
+      width: min(100% - 32px, 1200px);
+      padding: 48px 0 80px;
+    }
+
+    .project-header {
+      margin-bottom: 40px;
+    }
+
+    .project-lead {
+      font-size: 18px;
+    }
+
+    .project-meta {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    .project-image {
+      width: 100%;
+    }
+
+    .project-section {
+      margin-top: 56px;
+    }
+
+    .features {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

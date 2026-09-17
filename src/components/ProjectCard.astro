@@ -2,29 +2,65 @@
 interface Props {
   title: string;
   description: string;
+  image: string;
+  href: string;
   type: string;
-  status: string;
-  color: "pink" | "yellow" | "lime";
+  color?: "pink" | "yellow" | "lime";
 }
 
-const { title, description, type, status, color } = Astro.props;
+const { title, description, type, color, image, href } = Astro.props;
 ---
 
-<article class={color}>
-  <p class="project-type">{type}</p>
-  <h3>{title}</h3>
-  <p class="project-description">{description}</p>
-  <p class="project-status">{status}</p>
-</article>
+<a href={href} class={`project-card ${color ?? ""}`}>
+  <div class="project-image">
+    <img src={image} alt={`Превʼю проєкту «${title}»`} loading="lazy" />
+  </div>
+
+  <div class="project-content">
+    <div>
+      <p class="project-type">{type}</p>
+
+      <h3>{title}</h3>
+
+      <p class="project-description">{description}</p>
+    </div>
+
+    <span class="project-link">
+      Дивитися проєкт
+      <span aria-hidden="true">→</span>
+    </span>
+  </div>
+</a>
+
 <style>
-  article {
-    min-height: 360px;
-    padding: 28px;
+  .project-card {
+    min-width: 0;
+    overflow: hidden;
+
     display: flex;
     flex-direction: column;
+
+    color: var(--color-text);
+    text-decoration: none;
+
     border: 2px solid var(--color-text);
     border-radius: 20px;
+
+    transition:
+      transform 160ms ease,
+      box-shadow 160ms ease;
   }
+
+  .project-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 6px 6px 0 var(--color-text);
+  }
+
+  .project-card:focus-visible {
+    outline: 3px solid var(--color-accent);
+    outline-offset: 4px;
+  }
+
   .pink {
     background: var(--color-pink);
   }
@@ -37,8 +73,42 @@ const { title, description, type, status, color } = Astro.props;
     background: var(--color-lime);
   }
 
+  .project-image {
+    width: 100%;
+    max-height: 280px;
+    overflow: hidden;
+
+    background: var(--color-background);
+
+    border-bottom: 2px solid var(--color-text);
+  }
+
+  .project-image img {
+    width: 100%;
+    height: 100%;
+
+    display: block;
+    object-fit: cover;
+  }
+
+  .project-card:hover .project-image img {
+    transform: scale(1.025);
+  }
+
+  .project-content {
+    flex: 1;
+
+    padding: 28px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 40px;
+  }
+
   .project-type {
-    margin: 0 0 48px;
+    margin: 0 0 28px;
+
     font-size: 13px;
     font-weight: 700;
     letter-spacing: 0.1em;
@@ -47,29 +117,46 @@ const { title, description, type, status, color } = Astro.props;
 
   h3 {
     margin: 0;
-    font-size: 32px;
+
+    font-size: clamp(28px, 3vw, 36px);
     line-height: 1;
     letter-spacing: -0.03em;
   }
 
   .project-description {
-    margin: 20px 0;
-    font-size: 17px;
+    margin: 16px 0 0;
+
+    font-size: 16px;
+    line-height: 1.5;
   }
 
-  .project-status {
-    width: fit-content;
-    margin: auto 0 0;
-    padding: 6px 12px;
-    border: 1px solid currentColor;
-    border-radius: 999px;
-    font-size: 13px;
+  .project-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+
+    padding-top: 20px;
+
+    font-size: 14px;
     font-weight: 700;
+
+    border-top: 1px solid currentColor;
+  }
+
+  .project-link span {
+    font-size: 20px;
+
+    transition: transform 160ms ease;
+  }
+
+  .project-card:hover .project-link span {
+    transform: translateX(4px);
   }
 
   @media (max-width: 800px) {
-    article {
-      min-height: 280px;
+    .project-content {
+      padding: 24px;
     }
   }
 </style>

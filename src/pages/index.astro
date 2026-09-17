@@ -4,41 +4,12 @@ import ProjectCard from "../components/ProjectCard.astro";
 import ExperimentCard from "../components/ExperimentCard.astro";
 import LearningCard from "../components/LearningCard.astro";
 import { experiments } from "../data/experiments";
-
-const currentTime = new Date().toLocaleTimeString("uk-UA", {
-  timeZone: "Europe/Kyiv",
-});
-
-const projects = [
-  {
-    title: "Віршодрук",
-    description: "Тренажер швидкого друку та вивчення віршів",
-    type: "Product",
-    status: "Prototype",
-    color: "pink",
-  },
-  {
-    title: "Programming Sandbox",
-    description:
-      "Інтерактивний простір для практики програмування безпосередньо в браузері.",
-    type: "Learning tool",
-    status: "Concept",
-    color: "yellow",
-  },
-  {
-    title: "2048",
-    description: "Власна реалізація класичної гри 2048.",
-    type: "Game",
-    status: "Completed",
-    color: "lime",
-  },
-] as const;
+import { projects } from "../data/projects";
 ---
 
 <BaseLayout title="Oblina Labs">
   <main>
     <section id="hero">
-      <p>Сторінку створено о: {currentTime}</p>
       <p class="hero-label">Independent R&D lab</p>
       <h1>Ми створюємо, тестуємо та ділимося ідеями</h1>
       <p class="hero-description">
@@ -48,7 +19,7 @@ const projects = [
       <a class="hero-link" href="#projects">Дивитися проєкти</a>
     </section>
     <section id="projects">
-      <h2>Рекомендовані проекти</h2>
+      <h2>Рекомендовані проєкти</h2>
       <div class="project-grid">
         {
           projects.map((project) => (
@@ -56,7 +27,8 @@ const projects = [
               title={project.title}
               description={project.description}
               type={project.type}
-              status={project.status}
+              href={`/projects/${project.slug}`}
+              image={project.image}
               color={project.color}
             />
           ))
@@ -77,24 +49,6 @@ const projects = [
             />
           ))
         }
-      </div>
-    </section>
-    <section id="learn">
-      <h2>Навчання</h2>
-      <div class="learning-grid">
-        <LearningCard
-          title="Як працюють JavaScript Promises"
-          description="Покрокове пояснення станів Promise, методів then і catch та асинхронного виконання коду."
-          format="Guide"
-          level="Beginner"
-        />
-
-        <LearningCard
-          title="Astro Islands"
-          description="Розбираємо, як Astro додає інтерактивність лише тим компонентам, яким вона справді потрібна."
-          format="Article"
-          level="Intermediate"
-        />
       </div>
     </section>
     <section id="about">

@@ -2,6 +2,7 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { authorList } from "../data/authors";
 import { experiments } from "../data/experiments";
+import { projects } from "../data/projects";
 ---
 
 <BaseLayout title="Автори — Oblina Labs">
@@ -19,6 +20,9 @@ import { experiments } from "../data/experiments";
         authorList.map((author) => {
           const authorExperiments = experiments.filter((experiment) =>
             experiment.authors.includes(author.id),
+          );
+          const authorProjects = projects.filter((project) =>
+            project.authors.includes(author.id),
           );
           return (
             <article class="author" id={author.id}>
@@ -53,6 +57,21 @@ import { experiments } from "../data/experiments";
                         LinkedIn ↗
                       </a>
                     )}
+                  </div>
+                )}
+                {authorProjects.length > 0 && (
+                  <div class="author-materials">
+                    <p class="author-materials-title">Проєкти</p>
+                    <ul>
+                      {authorProjects.map((project) => (
+                        <li>
+                          <a href={`/projects/${project.slug}`}>
+                            {project.title}
+                            <span aria-hidden="true"> ↗</span>
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 )}
                 {authorExperiments.length > 0 && (

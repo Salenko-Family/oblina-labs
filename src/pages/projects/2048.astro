@@ -1,0 +1,204 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { projects } from "../../data/projects";
+import { authors } from "../../data/authors";
+
+const project = projects.find((project) => project.slug === "2048");
+
+if (!project) {
+  throw new Error("Project not found");
+}
+
+const projectAuthors = project.authors.map((id) => authors[id]);
+---
+
+<BaseLayout title={`${project.title} — Oblina Labs`}>
+  <main class="project-page">
+    <header class="project-header">
+      <p class="project-label">PROJECT · {project.type}</p>
+      <h1>{project.title}</h1>
+      <p class="project-lead">{project.description}</p>
+      <div class="project-meta">
+        <span>
+          Автор:
+          {
+            projectAuthors.map((author) => (
+              <a href={`/authors#${author.id}`}>{author.name}</a>
+            ))
+          }
+        </span>
+      </div>
+      <div class="project-actions">
+        {
+          project.externalUrl && (
+            <a
+              class="project-button project-button-primary"
+              href={project.externalUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Грати ↗
+            </a>
+          )
+        }
+        {
+          project.githubUrl && (
+            <a
+              class="project-button"
+              href={project.githubUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
+              GitHub ↗
+            </a>
+          )
+        }
+      </div>
+    </header>
+    <div class="project-image-wrapper">
+      <img
+        class="project-image"
+        src={project.image}
+        alt={`Проєкт «${project.title}»`}
+      />
+    </div>
+    <section class="project-section">
+      <h2>Про проєкт</h2>
+      <p>
+        2048 — це головоломка, у якій гравець переміщує плитки з числами по
+        квадратному полю. Коли дві плитки з однаковим значенням стикаються, вони
+        обʼєднуються в одну.
+      </p>
+      <p>
+        Мета гри — продовжувати обʼєднувати числа, набирати очки та дістатися
+        плитки 2048, не заповнивши все поле.
+      </p>
+      <p>
+        Ця версія — власна реалізація класичної механіки гри з керуванням
+        клавішами, генерацією нових плиток, підрахунком результату та логікою
+        обʼєднання чисел.
+      </p>
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  .project-page {
+    width: min(1200px, calc(100% - 48px));
+    margin: 0 auto;
+    padding: 80px 0 120px;
+  }
+
+  .project-header {
+    max-width: 900px;
+    margin-bottom: 56px;
+  }
+
+  .project-label {
+    margin: 0 0 20px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .project-header h1 {
+    margin: 0;
+    font-size: clamp(64px, 10vw, 120px);
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+  }
+
+  .project-lead {
+    max-width: 700px;
+    margin: 32px 0 0;
+    font-size: 22px;
+    line-height: 1.5;
+  }
+
+  .project-meta {
+    margin-top: 24px;
+    font-size: 15px;
+  }
+
+  .project-meta a {
+    margin-left: 6px;
+    color: inherit;
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .project-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 32px;
+  }
+
+  .project-button {
+    padding: 12px 20px;
+    color: var(--color-text);
+    font-weight: 700;
+    text-decoration: none;
+    border: 2px solid var(--color-text);
+    border-radius: 999px;
+  }
+
+  .project-button-primary {
+    background: var(--color-lime);
+  }
+
+  .project-image-wrapper {
+    display: flex;
+    justify-content: center;
+  }
+
+  .project-image {
+    width: min(100%, 720px);
+    display: block;
+
+    border: 2px solid var(--color-text);
+    border-radius: 24px;
+  }
+
+  .project-section {
+    max-width: 760px;
+    margin: 80px auto 0;
+  }
+
+  .project-section h2 {
+    margin: 0 0 24px;
+    font-size: clamp(36px, 5vw, 56px);
+    letter-spacing: -0.04em;
+  }
+
+  .project-section p {
+    margin: 0 0 20px;
+    font-size: 18px;
+    line-height: 1.65;
+  }
+
+  @media (max-width: 600px) {
+    .project-page {
+      width: min(100% - 32px, 1200px);
+      padding: 48px 0 80px;
+    }
+
+    .project-header {
+      margin-bottom: 40px;
+    }
+
+    .project-lead {
+      font-size: 18px;
+    }
+
+    .project-image {
+      width: 100%;
+    }
+
+    .project-section {
+      margin-top: 56px;
+    }
+  }
+</style>
