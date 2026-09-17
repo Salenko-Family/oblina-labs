@@ -18,9 +18,9 @@ export const authors: Record<AuthorId, Author> = {
   "anastasiia-salenko": {
     id: "anastasiia-salenko",
     name: "Анастасія Саленко",
-    role: "Software Engineer · співзасновниця",
+    role: "Software Engineer · співзасновниця Oblina Labs і Misolla Music",
     image: "/images/authors/anastasiia-salenko.jpg",
-    bio: "Працює над розробкою, експериментами та навчальними матеріалами Oblina Labs.",
+    bio: "Розробляє вебзастосунки, інтерактивні експерименти та навчальні матеріали. Працює з frontend і backend, співзаснувала Misolla Music та використовує Oblina Labs як простір для дослідження технологій і практичних експериментів.",
     links: {
       github: "https://github.com/Anastasiia-Salenko",
       linkedin: "https://www.linkedin.com/in/anastasiia-salenko/",
@@ -30,9 +30,9 @@ export const authors: Record<AuthorId, Author> = {
   "dmytro-salenko": {
     id: "dmytro-salenko",
     name: "Дмитро Саленко",
-    role: "Співзасновник",
+    role: "Software Engineer · співзасновник Oblina Labs і Misolla Music",
     image: "/images/authors/dmytro-salenko.jpg",
-    bio: "Працює над проєктами, дослідженнями та розвитком Oblina Labs.",
+    bio: "Працює над повним циклом створення вебпродуктів — від ідеї й архітектури до реалізації та запуску. Самостійно створив Віршодрук і власну версію 2048, а також є співзасновником Misolla Music.",
     links: {
       github: "https://github.com/dhammma",
       linkedin: "https://www.linkedin.com/in/dmytro-salenko/",
