@@ -4,6 +4,7 @@ import ProjectCard from "../components/ProjectCard.astro";
 import ExperimentCard from "../components/ExperimentCard.astro";
 import { experiments } from "../data/experiments";
 import { projects } from "../data/projects";
+import { articles } from "../data/articles";
 ---
 
 <BaseLayout title="Oblina Labs">
@@ -53,16 +54,22 @@ import { projects } from "../data/projects";
     <section id="articles">
       <h2>Статті</h2>
       <div class="article-grid">
-        <a href="/articles/how-i-became-a-developer" class="article-card">
-          <p class="article-label">Особисте</p>
-          <h3>Як я взагалі стала розробницею</h3>
-          <p class="article-description">
-            Від перших курсів до власних проєктів, Misolla та Oblina Labs.
-          </p>
-          <time class="article-date" datetime="2026-09-23">
-            23 вересня 2026
-          </time>
-        </a>
+        {
+          articles.map((article) => (
+            <a href={`/articles/${article.slug}`} class="article-card">
+              <p class="article-label">{article.category}</p>
+              <h3>{article.title}</h3>
+              <p class="article-description">{article.description}</p>
+              <time class="article-date" datetime={article.publishedAt}>
+                {new Date(article.publishedAt).toLocaleDateString("uk-UA", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                })}
+              </time>
+            </a>
+          ))
+        }
       </div>
     </section>
     <section id="about">
