@@ -1,5 +1,4 @@
 import type { AuthorId } from "./authors";
-
 export interface Article {
   title: string;
   description: string;
@@ -7,6 +6,7 @@ export interface Article {
   category: string;
   publishedAt: string;
   authorId: AuthorId;
+  image: string;
 }
 
 export const articles: Article[] = [
@@ -18,5 +18,6 @@ export const articles: Article[] = [
     category: "Особисте",
     publishedAt: "2026-09-23",
     authorId: "anastasiia-salenko",
+    image: "/images/articles/how-i-became-a-developer.png",
   },
 ];
